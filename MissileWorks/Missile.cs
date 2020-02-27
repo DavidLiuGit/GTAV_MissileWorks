@@ -41,18 +41,13 @@ namespace GFPS
 			spawnMissile();
 			configureMissileProp();
 			attachParticleFx();
-			control();
 		}
 
-
-		// Destructor; when invoked, calls cleanUp()
-		//~Missile() { cleanUp();	}
-
-
-		/// <summary>
-		/// Invocable destructor. Cleans up any assets that were put into the world
-		/// </summary>
 		
+		/// <summary>
+		/// Cleans up any assets that were put into the world. Can only be called in main thread.
+		/// </summary>
+		/// <returns>Always returns false.</returns>
 		public bool cleanUp () {
 			try
 			{
@@ -91,14 +86,14 @@ namespace GFPS
 		/// <returns>Whether the control flow can proceed</returns>
 		public virtual bool control()
 		{
-			// if the Prop does not exist, stop execution
-			//if (!missile.Exists())
-			//	return cleanUp();
+			// if the prop does not exist, stop execution flow
+			if (!missile.Exists())
+				return cleanUp();
 
-			// if the missile has collided, invoke the collision handler; if collision handler returns false, invoke cleanup & stop execution
-			/*if (missile.HasCollided)
+			// if the missile has collided with something, call collisionHandler
+			if (missile.HasCollided)
 				if (!collisionHandler())
-					return cleanUp();*/
+					return false;				// stop execution if collisionHandler returns false
 
 			return true;
 		}

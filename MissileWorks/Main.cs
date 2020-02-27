@@ -19,19 +19,19 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		{
 			Tick += mainOnTick;
 			KeyDown += onKeyDown;
-			Interval = 1;
+			Interval = 5;
 		}
 
 
 		private void mainOnTick(object sender, EventArgs e)
 		{
 			// filter list of activeMissiles to only those still active
-			//activeMissiles = activeMissiles.FindAll(missile => missile.active);
+			activeMissiles = activeMissiles.FindAll(missile => missile.active);
 
 			// control all active missiles
 			foreach (Missile missile in activeMissiles)
 			{
-				// missile.control();
+				missile.control();
 			}
 		}
 
@@ -41,8 +41,7 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		{
 			if (e.KeyCode == Keys.J && e.Modifiers == Keys.Control)
 			{
-				new HellstormMissile();
-				//activateMissile(typeof(HellstormMissile));
+				activateMissile(typeof(HellstormMissile));
 			}
 		}
 
@@ -59,12 +58,6 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 			activeMissiles.Add(newMissile);
 		}
 
-		private void activateMissile()
-		{
-			// Instantiate missile
-			Missile newMissile = new HellstormMissile();
-			activeMissiles.Add(newMissile);
-		}
 
 		#region properties
 		List<Missile> activeMissiles = new List<Missile>();
