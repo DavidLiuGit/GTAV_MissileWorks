@@ -25,7 +25,14 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 
 		private void mainOnTick(object sender, EventArgs e)
 		{
-			
+			// filter list of activeMissiles to only those still active
+			//activeMissiles = activeMissiles.FindAll(missile => missile.active);
+
+			// control all active missiles
+			foreach (Missile missile in activeMissiles)
+			{
+				// missile.control();
+			}
 		}
 
 
@@ -34,14 +41,33 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		{
 			if (e.KeyCode == Keys.J && e.Modifiers == Keys.Control)
 			{
-				activeMissile = new HellstormMissile();
+				new HellstormMissile();
+				//activateMissile(typeof(HellstormMissile));
 			}
 		}
 
 
 
+		/// <summary>
+		/// Instantiate a Missile of a specified type. Hand over control by attaching an event handler to Script.Tick as necessary.
+		/// </summary>
+		/// <param name="missileType"></param>
+		private void activateMissile(Type missileType)
+		{
+			// Instantiate missile
+			Missile newMissile = (Missile)Activator.CreateInstance(missileType);
+			activeMissiles.Add(newMissile);
+		}
+
+		private void activateMissile()
+		{
+			// Instantiate missile
+			Missile newMissile = new HellstormMissile();
+			activeMissiles.Add(newMissile);
+		}
+
 		#region properties
-		Missile activeMissile;
+		List<Missile> activeMissiles = new List<Missile>();
 
 		#endregion
 	}

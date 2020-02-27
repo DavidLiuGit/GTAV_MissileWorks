@@ -14,8 +14,8 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected float initialHeight = 50.0f;
-		protected float initialRadius = 15.0f;
+		protected const float initialHeight = 20.0f;
+		protected const float initialRadius = 5.0f;
 
 		protected Model clusterMissileModel;
 		protected float maxCruiseSpeed = 50.0f;
@@ -27,20 +27,19 @@ namespace GFPS
 		#region constructorDestructor
 		public HellstormMissile()
 			: base()
-		{
-			missileModel = (Model)737852268;
-			clusterMissileModel = (Model)(-1146260322);
-
-			//spawnMissile();
-		}
+		{}
 		#endregion
 
 
 
 
-		#region public
+		#region overridenMethods
 		protected override void configure()
 		{
+			// call parent configure() method
+			base.configure();
+
+			// overwrite any configs as necessary
 			missileModel = (Model)737852268;
 			clusterMissileModel = (Model)(-1146260322);
 		}
@@ -74,11 +73,41 @@ namespace GFPS
 			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;			// get the normalized delta vector; points towards the player
 			missile.Rotation = Helper.getEulerAngles(directionVector);
 
-			// apply "thrust" to the missile
 			missile.ApplyForceRelative(new Vector3(0f, 100f, 0f));
 
-
+			// mark as ready-to-delete when out of range
 			missile.MarkAsNoLongerNeeded();
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public override bool control()
+		{
+			// invoke base control method; if it returns false, stop execution
+			//if (!base.control())
+			//	return false;
+
+			// apply "thrust" to the missile; recall that the missile has a set maximum speed
+			missile.ApplyForceRelative(new Vector3(0f, 100f, 0f));
+
+			return true;
+		}
+
+
+
+		protected override void attachParticleFx()
+		{
+			
+		}
+
+
+		protected override bool collisionHandler()
+		{
+			GTA.UI.Notification.Show("Missile collided!");
+			return false;
 		}
 		#endregion
 	}

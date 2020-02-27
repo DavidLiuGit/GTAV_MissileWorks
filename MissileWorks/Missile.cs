@@ -11,13 +11,15 @@ using GTA.Math;
 
 namespace GFPS
 {
-	public class Missile
+	public abstract class Missile
 	{
 		#region properties
 		// config
+		public bool active;
 		protected Model missileModel;
 		protected bool canControl;
 		protected bool attachCamera;
+		public bool autonomous;
 
 		// instance references & pointers
 		protected Prop missile;				// Prop is a child of Entity
@@ -39,57 +41,101 @@ namespace GFPS
 			spawnMissile();
 			configureMissileProp();
 			attachParticleFx();
+			control();
 		}
 
 
 		// Destructor; when invoked, calls cleanUp()
-		~Missile() { cleanUp();	}
+		//~Missile() { cleanUp();	}
 
 
 		/// <summary>
 		/// Invocable destructor. Cleans up any assets that were put into the world
 		/// </summary>
-		public void cleanUp () {
+		
+		public bool cleanUp () {
 			try
 			{
 				missile.Delete();
 			}
 			catch { }
+			finally
+			{
+				active = false;
+			}
+			return false;
 		}
 		#endregion
 
 
 
 
-		#region protected
+		#region virtualMethods
 		/// <summary>
 		/// Apply configurations
 		/// </summary>
 		protected virtual void configure()
 		{
+			active = true;
 			missileModel = (Model)737852268;
 			canControl = false;
 			attachCamera = false;
+			//_autonomous = false;
 		}
 
 
 		/// <summary>
+		/// Control the missile. This method is meant to be invoked on each Script tick after the missile is activated.
+		/// If the missile is no longer active for any reason, this object instance is marked as such, and control execution is stopped.
+		/// </summary>
+		/// <returns>Whether the control flow can proceed</returns>
+		public virtual bool control()
+		{
+			// if the Prop does not exist, stop execution
+			//if (!missile.Exists())
+			//	return cleanUp();
+
+			// if the missile has collided, invoke the collision handler; if collision handler returns false, invoke cleanup & stop execution
+			/*if (missile.HasCollided)
+				if (!collisionHandler())
+					return cleanUp();*/
+
+			return true;
+		}
+		#endregion
+
+
+
+
+		#region abstractMethods
+		/// <summary>
 		/// Spawn the missile as a prop
 		/// </summary>
-		protected virtual void spawnMissile () {}
+		protected abstract void spawnMissile();
 
 
 		/// <summary>
 		/// Apply appropriate settings to the missile prop instance
 		/// </summary>
-		protected virtual void configureMissileProp() { }
+		protected abstract void configureMissileProp();
 
 
 		/// <summary>
 		/// Attach particle effects to the missile prop
 		/// </summary>
-		protected virtual void attachParticleFx() { }
+		protected abstract void attachParticleFx();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Whether the control flow can proceed</returns>
+		protected abstract bool collisionHandler();
+		#endregion
+
+
+
+
+		#region accessorsMutators
 		#endregion
 	}
 }
