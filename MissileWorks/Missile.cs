@@ -23,6 +23,11 @@ namespace GFPS
 
 		// instance references & pointers
 		protected Prop missile;				// Prop is a child of Entity
+		protected Camera defaultCamera;
+		protected Camera missileCamera;
+
+		// lifecycle
+		protected int creationTime;
 
 		// particle fx
 		protected ParticleEffectAsset particleFxAsset;
@@ -51,6 +56,7 @@ namespace GFPS
 			spawnMissile();
 			configureMissileProp();
 			attachParticleFx();
+			if (attachCamera) createCamera();
 		}
 
 		
@@ -66,7 +72,9 @@ namespace GFPS
 			catch { }
 			finally
 			{
-				active = false;
+				World.RenderingCamera = null;		// restore default game camera
+				World.DestroyAllCameras();			// destroy all script-created cameras
+				active = false;						// mark this missile instance as inactive
 			}
 			return false;
 		}
@@ -85,7 +93,7 @@ namespace GFPS
 			missileModel = (Model)737852268;
 			canControl = false;
 			attachCamera = false;
-			//_autonomous = false;
+			creationTime = Game.GameTime;
 		}
 
 
@@ -136,6 +144,12 @@ namespace GFPS
 		/// </summary>
 		/// <returns>Whether the control flow can proceed</returns>
 		protected abstract bool collisionHandler();
+
+
+		/// <summary>
+		/// Create and attach camera to the missile
+		/// </summary>
+		protected abstract void createCamera();
 		#endregion
 
 

@@ -15,14 +15,20 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 100.0f;
-		protected const float initialRadius = 10.0f;
+		protected const float initialHeight = 750.0f;
+		protected const float initialRadius = 125.0f;
 
+		// instance references & pointers
 		protected Model clusterMissileModel;
-		protected float maxCruiseSpeed = 20.0f;
-		protected float maxBoostSpeed = 200.0f;
 
+		// control
+		protected float maxCruiseSpeed = 100.0f;
+		protected float maxBoostSpeed = 200.0f;
 		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);
+
+		// camera
+		protected Vector3 initialCameraOffset = new Vector3 (0f, 25f, 0f);
+		protected float cameraFov = 85f;
 		#endregion
 
 
@@ -43,9 +49,9 @@ namespace GFPS
 			base.configure();
 
 			// overwrite any configs as necessary
-			missileModel = (Model)(-1479625776);
-			//clusterMissileModel = (Model)737852268;
-			clusterMissileModel = (Model)(-1146260322);
+			missileModel = (Model)(-1479625776);			// SAM missile
+			//clusterMissileModel = (Model)737852268;		// green missile
+			clusterMissileModel = (Model)(-1146260322);		// homing missile
 			attachCamera = true;
 			explosionType = ExplosionType.Plane;
 			invertThrust = true;
@@ -101,6 +107,8 @@ namespace GFPS
 			// apply "thrust" to the missile; recall that the missile has a set maximum speed
 			missile.ApplyForceRelative(cruisingThrustVector);
 
+			// if user control is enabled, hand control to user
+
 			return true;
 		}
 
@@ -125,6 +133,24 @@ namespace GFPS
 			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake);
 
 			return cleanUp();
+		}
+
+
+		/// <summary>
+		/// Create & attach camera to the missile
+		/// </summary>
+		protected override void createCamera()
+		{
+			// create new camera at the offset and point it towards to missile; render from this new camera
+			missileCamera = World.CreateCamera(missile.Position + initialCameraOffset, Vector3.Zero, cameraFov);
+			missileCamera.AttachTo(missile, initialCameraOffset);
+			missileCamera.PointAt(missile);
+
+			// activate camera for rendering
+			World.RenderingCamera = missileCamera;
+
+			// allow user control
+			canControl = true;
 		}
 		#endregion
 	}
