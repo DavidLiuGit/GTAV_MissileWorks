@@ -18,14 +18,13 @@ namespace GFPS
 		protected float initialRadius = 15.0f;
 
 		protected Model clusterMissileModel;
-		protected Prop missile;
 		protected float maxCruiseSpeed = 50.0f;
 		protected float maxBoostSpeed = 100.0f;
 		#endregion
 
 
 
-		#region constructor
+		#region constructorDestructor
 		public HellstormMissile()
 			: base()
 		{
@@ -70,16 +69,12 @@ namespace GFPS
 			// apply settings to the missile
 			missile.HasGravity = false;
 			missile.MaxSpeed = maxCruiseSpeed;
-
-			//missile.ApplyForceRelative(new Vector3(0f, 50f, 0f), new Vector3(50f, 0f, 0f));
-			//missile.Velocity = new Vector3(0f, 10f, 0f);
-
+			
 			// orient the missile towards the player
 			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;			// get the normalized delta vector; points towards the player
-			float yaw = (float)(Math.Atan2(directionVector.Y, directionVector.X) * 180 / Math.PI) - 90f;
-			float pitch = (float)(Math.Asin(directionVector.Z) * (180 / Math.PI));
-			Vector3 rotationVector = new Vector3(pitch, 0f, yaw);
-			missile.Rotation = rotationVector;
+			missile.Rotation = Helper.getEulerAngles(directionVector);
+
+			// apply "thrust" to the missile
 			missile.ApplyForceRelative(new Vector3(0f, 100f, 0f));
 
 

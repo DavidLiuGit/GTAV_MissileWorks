@@ -72,5 +72,20 @@ namespace GFPS
 			0x7EA26372,		// prisoners
 			0x8296713E,		// dealers
 		};
+
+
+
+		/// <summary>
+		/// Given a normalized direction Vector3, return a set of Euler angles, describing Rot[ZXY] (i.e. pitch, roll, yaw).
+		/// All angles are in degrees. Roll will be set to 0.0
+		/// </summary>
+		/// <param name="unitDirectionVector">Normalized direction <c>Vector3</c></param>
+		/// <returns><c>Vector3</c> whose x, y, z angles represent pitch, roll, and yaw angles respectively. Angles are in degrees.</returns>
+		public static Vector3 getEulerAngles(Vector3 normDirectionVector)
+		{
+			float yaw = (float)(Math.Atan2(normDirectionVector.Y, normDirectionVector.X) * 180 / Math.PI) - 90f;
+			float pitch = (float)(Math.Asin(normDirectionVector.Z) * (180 / Math.PI));
+			return new Vector3(pitch, 0f, yaw);
+		}
 	}
 }
