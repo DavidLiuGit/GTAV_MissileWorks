@@ -21,13 +21,17 @@ namespace GFPS
 		// instance references & pointers
 		protected Model clusterMissileModel;
 
+		// lifecycle
+		protected HellstormLifecycle lifecycleStage;
+		protected int launchTime = 1000;
+
 		// control
 		protected float maxCruiseSpeed = 100.0f;
 		protected float maxBoostSpeed = 200.0f;
 		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);
 
 		// camera
-		protected Vector3 initialCameraOffset = new Vector3 (0f, 25f, 0f);
+		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
 		protected float cameraFov = 85f;
 		#endregion
 
@@ -84,6 +88,9 @@ namespace GFPS
 		/// </summary>
 		protected override void configureMissileProp()
 		{
+			// set lifecycle stage
+			lifecycleStage = HellstormLifecycle.Launch;
+
 			// apply settings to the missile
 			missile.HasGravity = false;
 			missile.MaxSpeed = maxCruiseSpeed;
@@ -107,7 +114,7 @@ namespace GFPS
 			// apply "thrust" to the missile; recall that the missile has a set maximum speed
 			missile.ApplyForceRelative(cruisingThrustVector);
 
-			// if user control is enabled, hand control to user
+			// if user control is enabled, detect relevant user input
 
 			return true;
 		}
@@ -137,21 +144,27 @@ namespace GFPS
 
 
 		/// <summary>
-		/// Create & attach camera to the missile
+		/// Create the missile cam. Initially, the camera shows the "launch"
 		/// </summary>
 		protected override void createCamera()
 		{
 			// create new camera at the offset and point it towards to missile; render from this new camera
-			missileCamera = World.CreateCamera(missile.Position + initialCameraOffset, Vector3.Zero, cameraFov);
-			missileCamera.AttachTo(missile, initialCameraOffset);
+			missileCamera = World.CreateCamera(missile.Position + launchCameraOffset, Vector3.Zero, cameraFov);
+			//missileCamera.AttachTo(missile, launchCameraOffset);
 			missileCamera.PointAt(missile);
 
 			// activate camera for rendering
 			World.RenderingCamera = missileCamera;
-
-			// allow user control
-			canControl = true;
 		}
 		#endregion
+	}
+
+
+
+	public enum HellstormLifecycle
+	{
+		Launch,
+		Cruise,
+		Boost,
 	}
 }
