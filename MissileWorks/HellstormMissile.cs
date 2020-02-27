@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using GTA;
 using GTA.Math;
+using GTA.Native;
 
 
 
@@ -44,6 +45,10 @@ namespace GFPS
 			clusterMissileModel = (Model)(-1146260322);
 			attachCamera = true;
 			explosionType = ExplosionType.TankShell;
+
+			// load particle FX
+			particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
+			particleFxName = "scr_agency3b_proj_rpg_trail";
 		}
 
 
@@ -99,7 +104,9 @@ namespace GFPS
 		/// </summary>
 		protected override void attachParticleFx()
 		{
-			
+			particleFxAsset.Request();
+			ParticleEffect fx = World.CreateParticleEffect(particleFxAsset, particleFxName,
+				missile, particleFxOffset, Vector3.Zero, particleFxScale);
 		}
 
 

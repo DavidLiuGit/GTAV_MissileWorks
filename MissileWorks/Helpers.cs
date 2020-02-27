@@ -87,5 +87,18 @@ namespace GFPS
 			float pitch = (float)(Math.Asin(normDirectionVector.Z) * (180 / Math.PI));
 			return new Vector3(pitch, 0f, yaw);
 		}
+
+
+		/// <summary>
+		/// Request 
+		/// </summary>
+		/// <param name="assetName"></param>
+		/// <returns></returns>
+		public static ParticleEffectAsset loadParticleFxAsset(string assetName)
+		{
+			ParticleEffectAsset asset = new ParticleEffectAsset(assetName);
+			if (!asset.IsLoaded) asset.Request();
+			return asset;
+		}
 	}
 }

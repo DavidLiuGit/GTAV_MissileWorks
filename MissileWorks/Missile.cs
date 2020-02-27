@@ -25,8 +25,10 @@ namespace GFPS
 		protected Prop missile;				// Prop is a child of Entity
 
 		// particle fx
-		protected Vector3 particleFxOffset;
-		protected List<ParticleEffect> particleFxList;
+		protected ParticleEffectAsset particleFxAsset;
+		protected Vector3 particleFxOffset = new Vector3(0f, -0.35f, 0f);
+		protected float particleFxScale = 2.0f;
+		protected string particleFxName;
 
 		// explosion
 		protected float explosionDamageScale = 1.0f;
@@ -96,7 +98,7 @@ namespace GFPS
 				return cleanUp();
 
 			// if the missile has collided with something, call collisionHandler
-			if (missile.HasCollided)
+			if (missile.HasCollided || missile.HasBeenDamagedByAnyWeapon())
 				if (!collisionHandler())
 					return false;				// stop execution if collisionHandler returns false
 
