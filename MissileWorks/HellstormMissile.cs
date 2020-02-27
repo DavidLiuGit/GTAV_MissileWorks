@@ -19,8 +19,10 @@ namespace GFPS
 		protected const float initialRadius = 10.0f;
 
 		protected Model clusterMissileModel;
-		protected float maxCruiseSpeed = 100.0f;
+		protected float maxCruiseSpeed = 20.0f;
 		protected float maxBoostSpeed = 200.0f;
+
+		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);
 		#endregion
 
 
@@ -41,13 +43,17 @@ namespace GFPS
 			base.configure();
 
 			// overwrite any configs as necessary
-			missileModel = (Model)737852268;
+			missileModel = (Model)(-1479625776);
+			//clusterMissileModel = (Model)737852268;
 			clusterMissileModel = (Model)(-1146260322);
 			attachCamera = true;
-			explosionType = ExplosionType.TankShell;
+			explosionType = ExplosionType.Plane;
+			invertThrust = true;
 
 			// load particle FX
 			particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
+			particleFxAsset.Request();
+			particleFxOffset = new Vector3(0f, 2.925f, 0f);
 			particleFxName = "scr_agency3b_proj_rpg_trail";
 		}
 
@@ -75,10 +81,10 @@ namespace GFPS
 			// apply settings to the missile
 			missile.HasGravity = false;
 			missile.MaxSpeed = maxCruiseSpeed;
-			
-			// orient the missile towards the player
-			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;			// get the normalized delta vector; points towards the player
-			missile.Rotation = Helper.getEulerAngles(directionVector);
+
+			// orient the missile towards the player. get normalized delta vector that points towards the player
+			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;
+			missile.Rotation = Helper.getEulerAngles(directionVector, invertThrust);
 		}
 
 
@@ -93,7 +99,7 @@ namespace GFPS
 				return false;
 
 			// apply "thrust" to the missile; recall that the missile has a set maximum speed
-			missile.ApplyForceRelative(new Vector3(0f, 20f, 0f));
+			missile.ApplyForceRelative(cruisingThrustVector);
 
 			return true;
 		}
@@ -104,7 +110,6 @@ namespace GFPS
 		/// </summary>
 		protected override void attachParticleFx()
 		{
-			particleFxAsset.Request();
 			ParticleEffect fx = World.CreateParticleEffect(particleFxAsset, particleFxName,
 				missile, particleFxOffset, Vector3.Zero, particleFxScale);
 		}

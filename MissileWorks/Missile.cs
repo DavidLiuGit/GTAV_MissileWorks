@@ -26,9 +26,12 @@ namespace GFPS
 
 		// particle fx
 		protected ParticleEffectAsset particleFxAsset;
-		protected Vector3 particleFxOffset = new Vector3(0f, -0.35f, 0f);
+		protected Vector3 particleFxOffset;
 		protected float particleFxScale = 2.0f;
 		protected string particleFxName;
+
+		// control
+		protected bool invertThrust = false;
 
 		// explosion
 		protected float explosionDamageScale = 1.0f;

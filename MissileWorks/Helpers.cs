@@ -81,11 +81,31 @@ namespace GFPS
 		/// </summary>
 		/// <param name="unitDirectionVector">Normalized direction <c>Vector3</c></param>
 		/// <returns><c>Vector3</c> whose x, y, z angles represent pitch, roll, and yaw angles respectively. Angles are in degrees.</returns>
-		public static Vector3 getEulerAngles(Vector3 normDirectionVector)
+		public static Vector3 getEulerAngles(Vector3 normDirectionVector, bool invertPitch = false)
 		{
+			// calculate angles
 			float yaw = (float)(Math.Atan2(normDirectionVector.Y, normDirectionVector.X) * 180 / Math.PI) - 90f;
 			float pitch = (float)(Math.Asin(normDirectionVector.Z) * (180 / Math.PI));
+
+			// if any angles need to be inverted, do so
+			if (invertPitch) pitch = invertAngleDegrees(pitch);
+
 			return new Vector3(pitch, 0f, yaw);
+		}
+
+
+		/// <summary>
+		/// Flip an angle 180 degrees. Output is constrained to -180.0 < output <= +180.0
+		/// </summary>
+		/// <param name="angle"></param>
+		/// <returns></returns>
+		public static float invertAngleDegrees(float angle)
+		{
+			// invert by adding 180 degrees
+			angle += 180.0f;
+
+			// normalize if needed
+			return (angle % 360f + 360f) % 360f;
 		}
 
 
