@@ -20,6 +20,7 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 			Tick += mainOnTick;
 			KeyDown += onKeyDown;
 			Interval = 5;
+			Aborted += onAbort;
 		}
 
 
@@ -62,6 +63,16 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		#region properties
 		List<Missile> activeMissiles = new List<Missile>();
 
+		#endregion
+
+
+
+		#region destructor
+		private void onAbort(object sender, EventArgs e)
+		{
+			foreach (Missile m in activeMissiles)
+				m.cleanUp();
+		}
 		#endregion
 	}
 }
