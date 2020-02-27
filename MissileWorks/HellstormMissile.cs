@@ -23,7 +23,8 @@ namespace GFPS
 
 		// lifecycle
 		protected HellstormLifecycle lifecycleStage;
-		protected int launchTime = 1000;
+		protected int launchStageTime = 750;
+		protected int launchStageTransitionTime = 200;
 
 		// control
 		protected float maxCruiseSpeed = 100.0f;
@@ -32,6 +33,7 @@ namespace GFPS
 
 		// camera
 		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
+		protected Vector3 missileCamOffset = new Vector3(0f, 0f, 0f);
 		protected float cameraFov = 85f;
 		#endregion
 
@@ -111,10 +113,26 @@ namespace GFPS
 			if (!base.control())
 				return false;
 
+			// check if it is necessary to transition to the next lifecycle stage
+			switch (lifecycleStage)
+			{
+				case HellstormLifecycle.Launch:
+					int age = Game.GameTime - creationTime;
+					if (age >= launchStageTime)
+					{
+						transitionToMissileCam(missileCamera);
+						lifecycleStage = HellstormLifecycle.Cruise;
+						canControl = true;
+					}
+					break;
+			}
+
 			// apply "thrust" to the missile; recall that the missile has a set maximum speed
 			missile.ApplyForceRelative(cruisingThrustVector);
 
 			// if user control is enabled, detect relevant user input
+			if (canControl)
+				applyUserInput();
 
 			return true;
 		}
@@ -150,11 +168,42 @@ namespace GFPS
 		{
 			// create new camera at the offset and point it towards to missile; render from this new camera
 			missileCamera = World.CreateCamera(missile.Position + launchCameraOffset, Vector3.Zero, cameraFov);
-			//missileCamera.AttachTo(missile, launchCameraOffset);
 			missileCamera.PointAt(missile);
 
 			// activate camera for rendering
 			World.RenderingCamera = missileCamera;
+		}
+		#endregion
+
+
+
+		#region helperMethods
+		/// <summary>
+		/// Transition the specified camera and attach it to the missile, as if it were mounted
+		/// to the front of the missile
+		/// </summary>
+		protected void transitionToMissileCam(Camera cam)
+		{
+			// fade the screen to black & pause the script
+			GTA.UI.Screen.FadeOut(launchStageTransitionTime);
+			Script.Wait(launchStageTransitionTime);
+
+			// transition to missile cam
+			cam.StopPointing();
+			cam.AttachTo(missile, missileCamOffset);
+			cam.Direction = invertThrust ? Vector3.Negate(missile.ForwardVector) : missile.ForwardVector;
+
+			// fade the screen back in
+			GTA.UI.Screen.FadeIn(launchStageTransitionTime);
+		}
+
+
+		/// <summary>
+		/// When the user can control the missile, read & apply user input
+		/// </summary>
+		protected void applyUserInput()
+		{
+
 		}
 		#endregion
 	}

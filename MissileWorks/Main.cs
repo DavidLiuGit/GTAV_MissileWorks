@@ -72,6 +72,7 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		{
 			foreach (Missile m in activeMissiles)
 				m.cleanUp();
+			World.RenderingCamera = null;			// reset to default camera
 		}
 		#endregion
 	}

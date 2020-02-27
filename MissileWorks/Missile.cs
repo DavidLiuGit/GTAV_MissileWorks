@@ -23,7 +23,6 @@ namespace GFPS
 
 		// instance references & pointers
 		protected Prop missile;				// Prop is a child of Entity
-		protected Camera defaultCamera;
 		protected Camera missileCamera;
 
 		// lifecycle
@@ -36,7 +35,7 @@ namespace GFPS
 		protected string particleFxName;
 
 		// control
-		protected bool invertThrust = false;
+		protected bool invertThrust = false;	// in case the direction of the missile is flipped 
 
 		// explosion
 		protected float explosionDamageScale = 1.0f;
