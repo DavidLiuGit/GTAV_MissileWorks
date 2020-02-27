@@ -41,7 +41,7 @@ namespace GFPS
 
 
 		/// <summary>
-		/// Apply settings to the prop of the missile
+		/// Apply appropriate settings to the missile prop instance
 		/// </summary>
 		protected virtual void configureMissileProp() { }
 
