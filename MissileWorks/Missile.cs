@@ -18,7 +18,7 @@ namespace GFPS
 		public bool active;
 		protected Model missileModel;
 		protected bool canControl;
-		protected bool attachCamera;
+		protected bool attachCamera = false;
 		public bool autonomous;
 
 		// instance references & pointers
@@ -27,6 +27,11 @@ namespace GFPS
 		// particle fx
 		protected Vector3 particleFxOffset;
 		protected List<ParticleEffect> particleFxList;
+
+		// explosion
+		protected float explosionDamageScale = 1.0f;
+		protected float explosionCamShake = 2.0f;
+		protected ExplosionType explosionType = ExplosionType.PlaneRocket;
 		#endregion
 
 
@@ -120,8 +125,9 @@ namespace GFPS
 		/// </summary>
 		protected abstract void attachParticleFx();
 
+
 		/// <summary>
-		/// 
+		/// Invoked when a collision is detected
 		/// </summary>
 		/// <returns>Whether the control flow can proceed</returns>
 		protected abstract bool collisionHandler();

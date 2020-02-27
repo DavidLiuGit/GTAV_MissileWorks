@@ -14,12 +14,12 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 20.0f;
-		protected const float initialRadius = 5.0f;
+		protected const float initialHeight = 100.0f;
+		protected const float initialRadius = 10.0f;
 
 		protected Model clusterMissileModel;
-		protected float maxCruiseSpeed = 20.0f;
-		protected float maxBoostSpeed = 100.0f;
+		protected float maxCruiseSpeed = 100.0f;
+		protected float maxBoostSpeed = 200.0f;
 		#endregion
 
 
@@ -42,6 +42,8 @@ namespace GFPS
 			// overwrite any configs as necessary
 			missileModel = (Model)737852268;
 			clusterMissileModel = (Model)(-1146260322);
+			attachCamera = true;
+			explosionType = ExplosionType.TankShell;
 		}
 
 
@@ -92,15 +94,24 @@ namespace GFPS
 		}
 
 
-
+		/// <summary>
+		/// Request and attach particle effects to the missile
+		/// </summary>
 		protected override void attachParticleFx()
 		{
 			
 		}
 
 
+		/// <summary>
+		/// The Hellfire main missile collision handler. Missile will explode on collision.
+		/// </summary>
 		protected override bool collisionHandler()
 		{
+			// get the missile's position and create an explosion at that position
+			Vector3 missilePos = missile.Position;
+			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake);
+
 			return cleanUp();
 		}
 		#endregion
