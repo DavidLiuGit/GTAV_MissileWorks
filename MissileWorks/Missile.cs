@@ -40,6 +40,22 @@ namespace GFPS
 			configureMissileProp();
 			attachParticleFx();
 		}
+
+
+		// Destructor; when invoked, calls cleanUp()
+		~Missile() { cleanUp();	}
+
+
+		/// <summary>
+		/// Invocable destructor. Cleans up any assets that were put into the world
+		/// </summary>
+		public void cleanUp () {
+			try
+			{
+				missile.Delete();
+			}
+			catch { }
+		}
 		#endregion
 
 
