@@ -77,5 +77,3 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		#endregion
 	}
 }
-
-// 

@@ -27,6 +27,7 @@ namespace GFPS
 
 		// lifecycle
 		protected int creationTime;
+		protected int timeout;				// if missile age (in milliseconds) > timeout, self-destruct/cleanup
 
 		// particle fx
 		protected ParticleEffectAsset particleFxAsset;
@@ -93,6 +94,7 @@ namespace GFPS
 			canControl = false;
 			attachCamera = false;
 			creationTime = Game.GameTime;
+			timeout = 10000;
 		}
 
 
@@ -111,6 +113,10 @@ namespace GFPS
 			if (missile.HasCollided || missile.HasBeenDamagedByAnyWeapon())
 				if (!collisionHandler())
 					return false;				// stop execution if collisionHandler returns false
+
+			// if missile's age is more than timeout, stop execution & clean up
+			if ((Game.GameTime - creationTime) > timeout)
+				return cleanUp();
 
 			return true;
 		}

@@ -15,8 +15,8 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 750.0f;
-		protected const float initialRadius = 125.0f;
+		protected const float initialHeight = 550.0f;
+		protected const float initialRadius = 10.0f;
 
 		// instance references & pointers
 		protected Model clusterMissileModel;
@@ -29,7 +29,9 @@ namespace GFPS
 		// control
 		protected float maxCruiseSpeed = 100.0f;
 		protected float maxBoostSpeed = 200.0f;
-		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);
+		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);		// use ApplyForceRelative
+		protected Vector3 xAxisControlVector = new Vector3(1f, 0f, 0f) * 10f;
+		protected Vector3 yAxisControlVector = new Vector3(0f, 1f, 0f) * -10f;	// inverted?
 
 		// camera
 		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
@@ -61,6 +63,7 @@ namespace GFPS
 			attachCamera = true;
 			explosionType = ExplosionType.Plane;
 			invertThrust = true;
+			timeout = 15000;
 
 			// load particle FX
 			particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
@@ -113,11 +116,13 @@ namespace GFPS
 			if (!base.control())
 				return false;
 
+			// calculate how long the missile has been created
+			int age = Game.GameTime - creationTime;
+
 			// check if it is necessary to transition to the next lifecycle stage
 			switch (lifecycleStage)
 			{
 				case HellstormLifecycle.Launch:
-					int age = Game.GameTime - creationTime;
 					if (age >= launchStageTime)
 					{
 						transitionToMissileCam(missileCamera);
@@ -129,7 +134,7 @@ namespace GFPS
 
 			// apply "thrust" to the missile; recall that the missile has a set maximum speed
 			missile.ApplyForceRelative(cruisingThrustVector);
-
+			
 			// if user control is enabled, detect relevant user input
 			if (canControl)
 				applyUserInput();
@@ -169,7 +174,7 @@ namespace GFPS
 			// create new camera at the offset and point it towards to missile; render from this new camera
 			missileCamera = World.CreateCamera(missile.Position + launchCameraOffset, Vector3.Zero, cameraFov);
 			missileCamera.PointAt(missile);
-
+			
 			// activate camera for rendering
 			World.RenderingCamera = missileCamera;
 		}
@@ -192,6 +197,7 @@ namespace GFPS
 			cam.StopPointing();
 			cam.AttachTo(missile, missileCamOffset);
 			cam.Direction = invertThrust ? Vector3.Negate(missile.ForwardVector) : missile.ForwardVector;
+			cam.Rotation = new Vector3(-90f, 0f, 0f);
 
 			// fade the screen back in
 			GTA.UI.Screen.FadeIn(launchStageTransitionTime);
@@ -203,7 +209,18 @@ namespace GFPS
 		/// </summary>
 		protected void applyUserInput()
 		{
+			// read fly up & down input; apply forces accordingly
+			float upDownCtrl = Game.GetControlValueNormalized(Control.FlyUpDown);
+			if (upDownCtrl != 0.0f)
+				Helper.ApplyForceToCoG(missile, yAxisControlVector * upDownCtrl, false);
 
+			// read fly left & right input; apply forces accordingly
+			float leftRightCtrl = Game.GetControlValueNormalized(Control.FlyLeftRight);
+			if (leftRightCtrl != 0.0f)
+				Helper.ApplyForceToCoG(missile, xAxisControlVector * leftRightCtrl, false);
+
+			// debug
+			GTA.UI.Screen.ShowHelpTextThisFrame("upDownCtrl: " + upDownCtrl + ".  leftRightCtrl: " + leftRightCtrl);
 		}
 		#endregion
 	}
