@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DrawingHelper.cs" />
     <Compile Include="HellstormMissile.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="iniReader.cs" />

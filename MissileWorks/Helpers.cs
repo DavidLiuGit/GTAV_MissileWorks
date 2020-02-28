@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 using GTA;
 using GTA.Math;
 using GTA.Native;
+using GTA.UI;
 
 
 namespace GFPS
@@ -108,19 +110,6 @@ namespace GFPS
 
 			// normalize if needed
 			return (angle % 360f + 360f) % 360f;
-		}
-
-
-		/// <summary>
-		/// Request 
-		/// </summary>
-		/// <param name="assetName"></param>
-		/// <returns></returns>
-		public static ParticleEffectAsset loadParticleFxAsset(string assetName)
-		{
-			ParticleEffectAsset asset = new ParticleEffectAsset(assetName);
-			if (!asset.IsLoaded) asset.Request();
-			return asset;
 		}
 
 

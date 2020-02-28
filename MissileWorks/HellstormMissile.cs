@@ -40,6 +40,10 @@ namespace GFPS
 		protected Vector3 missileCamOffset = new Vector3(0f, 0f, 0f);
 		protected float cameraFov = 85f;
 
+		// targeting
+		protected string targetingTextureDict = "hud_reticle";
+		protected string targetingAssetname = "reticle_smg";
+		protected Sprite pedMarkerSprite;
 		#endregion
 
 
@@ -74,6 +78,10 @@ namespace GFPS
 			particleFxAsset.Request();
 			particleFxOffset = new Vector3(0f, 2.925f, 0f);
 			particleFxName = "scr_agency3b_proj_rpg_trail";
+
+			// load target marking sprite
+			pedMarkerSprite = new Sprite(targetingTextureDict, targetingAssetname, 
+				DrawingHelper.defaultSizeF, new PointF(0f, 0f), DrawingHelper.defaultColor, 0f, true);
 		}
 
 
@@ -107,16 +115,13 @@ namespace GFPS
 			// orient the missile towards the player. get normalized delta vector that points towards the player
 			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;
 			missile.Rotation = Helper.getEulerAngles(directionVector, invertThrust);
-
-			//posMarker = new Sprite("hud_reticle", "reticle_smg", new SizeF(32f, 32f), new PointF(640f, 360f), Color.Red, 45f, true);
-
 		}
 
 
 		/// <summary>
-		/// 
+		/// Apply missile flight control logic. Apply user input if enabled.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>Whether the control flow can proceed</returns>
 		public override bool control()
 		{
 			// invoke base control method; if it returns false, stop execution
@@ -143,8 +148,11 @@ namespace GFPS
 			missile.ApplyForceRelative(cruisingThrustVector);
 			
 			// if user control is enabled, detect relevant user input
-			if (canControl )
+			if (canControl)
 				applyUserInput();
+
+			// mark Peds according to their relationship with the player
+			DrawingHelper.markEntityOnScreen(Game.Player.Character, pedMarkerSprite);
 
 			return true;
 		}
