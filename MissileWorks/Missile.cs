@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using GTA;
 using GTA.Math;
+using GTA.UI;
 
 
 
@@ -45,6 +46,7 @@ namespace GFPS
 		#endregion
 
 
+		protected Sprite posMarker;
 
 		#region constructorDestructor
 		/// <summary>
@@ -68,6 +70,7 @@ namespace GFPS
 			try
 			{
 				missile.Delete();
+				particleFxAsset.MarkAsNoLongerNeeded();
 			}
 			catch { }
 			finally

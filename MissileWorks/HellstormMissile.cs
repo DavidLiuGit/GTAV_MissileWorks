@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 using GTA;
 using GTA.Math;
 using GTA.Native;
+using GTA.UI;
 
 
 
@@ -15,7 +17,7 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 550.0f;
+		protected const float initialHeight = 500.0f;
 		protected const float initialRadius = 10.0f;
 
 		// instance references & pointers
@@ -37,6 +39,7 @@ namespace GFPS
 		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
 		protected Vector3 missileCamOffset = new Vector3(0f, 0f, 0f);
 		protected float cameraFov = 85f;
+
 		#endregion
 
 
@@ -64,6 +67,7 @@ namespace GFPS
 			explosionType = ExplosionType.Plane;
 			invertThrust = true;
 			timeout = 15000;
+			explosionDamageScale = 2.0f;
 
 			// load particle FX
 			particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
@@ -103,6 +107,9 @@ namespace GFPS
 			// orient the missile towards the player. get normalized delta vector that points towards the player
 			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;
 			missile.Rotation = Helper.getEulerAngles(directionVector, invertThrust);
+
+			//posMarker = new Sprite("hud_reticle", "reticle_smg", new SizeF(32f, 32f), new PointF(640f, 360f), Color.Red, 45f, true);
+
 		}
 
 
@@ -136,7 +143,7 @@ namespace GFPS
 			missile.ApplyForceRelative(cruisingThrustVector);
 			
 			// if user control is enabled, detect relevant user input
-			if (canControl)
+			if (canControl )
 				applyUserInput();
 
 			return true;
@@ -218,9 +225,6 @@ namespace GFPS
 			float leftRightCtrl = Game.GetControlValueNormalized(Control.FlyLeftRight);
 			if (leftRightCtrl != 0.0f)
 				Helper.ApplyForceToCoG(missile, xAxisControlVector * leftRightCtrl, false);
-
-			// debug
-			GTA.UI.Screen.ShowHelpTextThisFrame("upDownCtrl: " + upDownCtrl + ".  leftRightCtrl: " + leftRightCtrl);
 		}
 		#endregion
 	}

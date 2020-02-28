@@ -137,7 +137,6 @@ namespace GFPS
 			 Function.Call(Hash.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS, ent, 1,
 				 force.X, force.Y, force.Z, false, relative, true, false);
 		}
-
 		#endregion
 	}
 }
