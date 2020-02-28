@@ -116,11 +116,11 @@ namespace GFPS
 
 		#region NativeAPI
 		/// <summary>
-		/// Apply a force to an entity at its center of gravity (mass). Resulting acceleration depends on object mass and force applied.
+		/// Apply a force to an entityList at its center of gravity (mass). Resulting acceleration depends on object mass and force applied.
 		/// </summary>
 		/// <param name="ent">instance of <c>Entity</c></param>
 		/// <param name="force"><c>Vector3</c> describing the force</param>
-		/// <param name="relative">if true, the entity's coordinate axis is used. Otherwise, the global coord axis is used</param>
+		/// <param name="relative">if true, the entityList's coordinate axis is used. Otherwise, the global coord axis is used</param>
 		/// <param name="ftype"><c>ForceType</c></param>
 		public static void ApplyForceToCoG(Entity ent, Vector3 force, bool relative = false, ForceType ftype = ForceType.MaxForceRot2){
 			 Function.Call(Hash.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS, ent, 1,

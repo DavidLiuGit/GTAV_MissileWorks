@@ -15,24 +15,30 @@ namespace GFPS
 {
 	public class DrawingHelper
 	{
-		#region drawing
-		public static SizeF defaultSizeF = new SizeF(64f, 64f);
+		#region defaults
+		public static SizeF defaultSizeF = new SizeF(48f, 48f);
 		public static Color defaultColor = Color.White;
+		#endregion
 
+
+
+		#region drawing
 		/// <summary>
-		/// Draw a texture around specified peds
+		/// Draw a texture around specified entityList
 		/// </summary>
-		/// <param name="peds">Instances of <c>Ped</c> to mark</param>
-		/// <param name="textureDict">Name of the .ytd file containing the texture</param>
-		/// <param name="assetName">Name of the texture asset</param>
-		/// <param name="distinguishRelationship">Change color based on the <c>Ped</c>'s relationship with the player</param>
-		public static void markPedsOnScreen(List<Ped> peds, string textureDict, string assetName, bool distinguishRelationship = true)
+		/// <param name="entityList">List of <c>entity</c> instances to mark</param>
+		/// <param name="spr">Instance of <c>Sprite</c> to mark entityList with</param>
+		/// <param name="distinguishPedRelationship">Change color based on the <c>Ped</c>'s relationship with the player</param>
+		public static void markPedsOnScreen(List<Entity> entityList, Sprite spr, bool distinguishPedRelationship = true)
 		{
-			foreach (Ped p in peds)
+			foreach (Entity entity in entityList)
 			{
-				markEntityOnScreen(p, textureDict, assetName);
+				if (!distinguishPedRelationship)
+					markEntityOnScreen(entity, spr);
+
 			}
 		}
+
 
 
 		/// <summary>
@@ -40,6 +46,7 @@ namespace GFPS
 		/// </summary>
 		/// <param name="entity">Instance of <c>Entity</c> to mark</param>
 		/// <param name="spr">Preloaded <c>Sprite</c> to mark the entity with</param>
+		/// <param name="color">Force use of specified <c>Color</c></param>
 		public static void markEntityOnScreen(Entity entity, Sprite spr, Color? color = null)
 		{
 			// get the position of the entity on screen & update the screen position of the sprite
@@ -50,11 +57,19 @@ namespace GFPS
 		}
 
 
-		public static void markEntityOnScreen(Entity entity, string textureDict, string assetName, Color? color = null, SizeF? size = null)
+
+		/// <summary>
+		/// Draw a preloaded <c>CustomSprite</c> on the screen where a specified entity is.
+		/// </summary>
+		/// <param name="entity">Instance of <c>Entity</c> to mark</param>
+		/// <param name="spr">Preloaded <c>CustomSprite</c> to mark the entity with</param>
+		/// <param name="color">Force use of specified <c>Color</c></param>
+		public static void markEntityOnScreen(Entity entity, CustomSprite spr, Color? color = null)
 		{
-			// get the position of the entity on screen
+			// get the position of the entity on screen & update the screen position of the sprite
 			PointF screenPos = Screen.WorldToScreen(entity.Position);
-			Sprite spr = new Sprite(textureDict, assetName, defaultSizeF, screenPos, color ?? defaultColor, 0f, true);
+			spr.Position = screenPos;			// update screen position of sprite
+			spr.Color = color ?? spr.Color;		// update sprite color if needed; if null, keep original color
 			spr.Draw();
 		}
 
