@@ -112,14 +112,20 @@ namespace GFPS
 			if (!missile.Exists())
 				return cleanUp();
 
-			// if the missile has collided with something, call collisionHandler
-			if (missile.HasCollided || missile.HasBeenDamagedByAnyWeapon())
+			// calculate how long the missile has been active; if timeout exceeded, detonate and stop execution
+			int missileAge = Game.GameTime - creationTime;
+			if (missileAge > timeout)
+			{
+				detonate();
+				return cleanUp();
+			}
+
+			// if the missile has collided, shot, or stopped moving, call collisionHandler
+			if (missile.HasCollided || 
+				missile.HasBeenDamagedByAnyWeapon() || 
+				(missile.Speed == 0.0f && missileAge > 0))
 				if (!collisionHandler())
 					return false;				// stop execution if collisionHandler returns false
-
-			// if missile's age is more than timeout, stop execution & clean up
-			if ((Game.GameTime - creationTime) > timeout)
-				return cleanUp();
 
 			return true;
 		}
@@ -152,6 +158,12 @@ namespace GFPS
 		/// </summary>
 		/// <returns>Whether the control flow can proceed</returns>
 		protected abstract bool collisionHandler();
+
+
+		/// <summary>
+		/// Detonate the missile
+		/// </summary>
+		protected abstract void detonate();
 
 
 		/// <summary>

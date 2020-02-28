@@ -165,11 +165,19 @@ namespace GFPS
 		/// </summary>
 		protected override bool collisionHandler()
 		{
+			detonate();
+			return cleanUp();
+		}
+
+
+		/// <summary>
+		/// Detonate the missile at the missile's current position
+		/// </summary>
+		protected override void detonate()
+		{
 			// get the missile's position and create an explosion at that position
 			Vector3 missilePos = missile.Position;
 			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake);
-
-			return cleanUp();
 		}
 
 
