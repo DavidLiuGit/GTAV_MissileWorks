@@ -15,23 +15,25 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 {
 	public class Main : Script
 	{
-		// You can set your mod information below! Be sure to do this!
-		bool firstTime = true;
-		string ModName = "Missile Works";
-		string Developer = "iLike2Teabag";
-		string Version = "1.0";
-
 		public Main()
 		{
 			Tick += mainOnTick;
 			KeyDown += onKeyDown;
-			Interval = 1;
+			Interval = 5;
+			Aborted += onAbort;
 		}
 
 
 		private void mainOnTick(object sender, EventArgs e)
 		{
-			
+			// filter list of activeMissiles to only those still active
+			activeMissiles = activeMissiles.FindAll(missile => missile.active);
+
+			// control all active missiles
+			foreach (Missile missile in activeMissiles)
+			{
+				missile.control();
+			}
 		}
 
 
@@ -40,17 +42,38 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 		{
 			if (e.KeyCode == Keys.J && e.Modifiers == Keys.Control)
 			{
-				activeMissile = new HellstormMissile();
+				activateMissile(typeof(HellstormMissile));
 			}
 		}
 
 
 
-		#region properties
-		Missile activeMissile;
+		/// <summary>
+		/// Instantiate a Missile of a specified type. Hand over control by attaching an event handler to Script.Tick as necessary.
+		/// </summary>
+		/// <param name="missileType"></param>
+		private void activateMissile(Type missileType)
+		{
+			// Instantiate missile
+			Missile newMissile = (Missile)Activator.CreateInstance(missileType);
+			activeMissiles.Add(newMissile);
+		}
 
+
+		#region properties
+		List<Missile> activeMissiles = new List<Missile>();
+
+		#endregion
+
+
+
+		#region destructor
+		private void onAbort(object sender, EventArgs e)
+		{
+			foreach (Missile m in activeMissiles)
+				m.cleanUp();
+			World.RenderingCamera = null;			// reset to default camera
+		}
 		#endregion
 	}
 }
-
-// 

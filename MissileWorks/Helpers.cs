@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 using GTA;
 using GTA.Math;
+using GTA.Native;
+using GTA.UI;
+
 
 namespace GFPS
 {
@@ -72,5 +76,80 @@ namespace GFPS
 			0x7EA26372,		// prisoners
 			0x8296713E,		// dealers
 		};
+
+
+
+		/// <summary>
+		/// Given a normalized direction Vector3, return a set of Euler angles, describing Rot[ZXY] (i.e. pitch, roll, yaw).
+		/// All angles are in degrees. Roll will be set to 0.0
+		/// </summary>
+		/// <param name="unitDirectionVector">Normalized direction <c>Vector3</c></param>
+		/// <returns><c>Vector3</c> whose x, y, z angles represent pitch, roll, and yaw angles respectively. Angles are in degrees.</returns>
+		public static Vector3 getEulerAngles(Vector3 normDirectionVector, bool invertPitch = false)
+		{
+			// calculate angles
+			float yaw = (float)(Math.Atan2(normDirectionVector.Y, normDirectionVector.X) * 180 / Math.PI) - 90f;
+			float pitch = (float)(Math.Asin(normDirectionVector.Z) * (180 / Math.PI));
+
+			// if any angles need to be inverted, do so
+			if (invertPitch) pitch = invertAngleDegrees(pitch);
+
+			return new Vector3(pitch, 0f, yaw);
+		}
+
+
+		/// <summary>
+		/// Flip an angle 180 degrees. Output is constrained to -180.0 < output <= +180.0
+		/// </summary>
+		/// <param name="angle"></param>
+		/// <returns></returns>
+		public static float invertAngleDegrees(float angle)
+		{
+			// invert by adding 180 degrees
+			angle += 180.0f;
+
+			// normalize if needed
+			return (angle % 360f + 360f) % 360f;
+		}
+
+
+
+		/// <summary>
+		/// Get all <c>Ped</c>s on the ground that can be seen, looking directly down from <c>observationPos</c>.
+		/// The radius of the search depends on the height of <c>observationPos</c> and <c>tanRatio</c>
+		/// </summary>
+		/// <param name="observationPos"></param>
+		/// <param name="tanRatio">search radius = tanRatio * observationPos.Z</param>
+		/// <param name="minRadius">Minimum search radius</param>
+		/// <returns></returns>
+		public static Ped[] getPedsInRangeFromVantage(Vector3 observationPos, float tanRatio = 0.333f, float minRadius = 50.0f)
+		{
+			// compute the origin (center-point) of where to search for peds from - this should be on the ground
+			float gndHeight = World.GetGroundHeight(observationPos);
+			Vector3 searchOrigin = new Vector3(observationPos.X, observationPos.Y, gndHeight);
+
+			// compute the radius of the search
+			float radius = tanRatio * Math.Abs(observationPos.Z - gndHeight);
+			radius = radius < minRadius ? minRadius : radius;
+
+			// to be safe, convert the 3D observation position to a 2D position (Vector2)
+			return World.GetNearbyPeds(searchOrigin, radius);
+		}
+
+
+
+		#region NativeAPI
+		/// <summary>
+		/// Apply a force to an entityList at its center of gravity (mass). Resulting acceleration depends on object mass and force applied.
+		/// </summary>
+		/// <param name="ent">instance of <c>Entity</c></param>
+		/// <param name="force"><c>Vector3</c> describing the force</param>
+		/// <param name="relative">if true, the entityList's coordinate axis is used. Otherwise, the global coord axis is used</param>
+		/// <param name="ftype"><c>ForceType</c></param>
+		public static void ApplyForceToCoG(Entity ent, Vector3 force, bool relative = false, ForceType ftype = ForceType.MaxForceRot2){
+			 Function.Call(Hash.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS, ent, 1,
+				 force.X, force.Y, force.Z, false, relative, true, false);
+		}
+		#endregion
 	}
 }
