@@ -50,7 +50,7 @@ namespace GFPS
 
 		#region constructorDestructor
 		public HellstormMissile()
-			: base()
+			: base() 
 		{}
 		#endregion
 
@@ -85,6 +85,7 @@ namespace GFPS
 		}
 
 
+
 		/// <summary>
 		/// Spawn a missile as a prop
 		/// </summary>
@@ -98,6 +99,7 @@ namespace GFPS
 			// spawn the prop
 			missile = World.CreateProp(missileModel, randomAround, true, false);
 		}
+
 
 
 		/// <summary>
@@ -116,6 +118,7 @@ namespace GFPS
 			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;
 			missile.Rotation = Helper.getEulerAngles(directionVector, invertThrust);
 		}
+
 
 
 		/// <summary>
@@ -159,6 +162,7 @@ namespace GFPS
 		}
 
 
+
 		/// <summary>
 		/// Request and attach particle effects to the missile
 		/// </summary>
@@ -167,6 +171,7 @@ namespace GFPS
 			ParticleEffect fx = World.CreateParticleEffect(particleFxAsset, particleFxName,
 				missile, particleFxOffset, Vector3.Zero, particleFxScale);
 		}
+
 
 
 		/// <summary>
@@ -179,6 +184,7 @@ namespace GFPS
 		}
 
 
+
 		/// <summary>
 		/// Detonate the missile at the missile's current position
 		/// </summary>
@@ -188,6 +194,7 @@ namespace GFPS
 			Vector3 missilePos = missile.Position;
 			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake);
 		}
+
 
 
 		/// <summary>
@@ -203,6 +210,8 @@ namespace GFPS
 			World.RenderingCamera = missileCamera;
 		}
 		#endregion
+
+
 
 
 
@@ -228,6 +237,7 @@ namespace GFPS
 		}
 
 
+
 		/// <summary>
 		/// When the user can control the missile, read & apply user input
 		/// </summary>
@@ -246,10 +256,12 @@ namespace GFPS
 
 
 
-
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		private bool targetObservablePeds()
 		{
-			//Ped[] observablePeds = World.GetAllPeds();//Helper.getPedsInRangeFromVantage(missile.Position);
 			Ped[] observablePeds = Helper.getPedsInRangeFromVantage(missile.Position);
 			DrawingHelper.markPedsOnScreen(observablePeds, pedMarkerSprite);
 

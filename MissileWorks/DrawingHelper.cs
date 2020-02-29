@@ -44,7 +44,7 @@ namespace GFPS
 
 				// otherwise, assign colors based on relationship
 				else
-					markEntityOnScreen(p, spr, getColorFromRelationship(p));
+					markEntityOnScreen(p, spr, getColorFromPed(p));
 			}
 		}
 
@@ -85,13 +85,14 @@ namespace GFPS
 
 
 		/// <summary>
-		/// Determine the <c>Color</c> to mark the <c>Ped</c> with, depending on the <c>Ped</c>'s relationship with the player
+		/// Determine the <c>Color</c> to mark the <c>Ped</c> with, depending on the <c>Ped</c>'s
+		/// relationship with the player, whether the Ped is in combat
 		/// </summary>
 		/// <param name="p">instance of <c>Ped</c></param>
 		/// <returns></returns>
-		public static Color getColorFromRelationship(Ped p)
+		public static Color getColorFromPed(Ped p)
 		{
-			Color customColor;
+			Color customColor = defaultColor;
 			Relationship rel = p.GetRelationshipWithPed(Game.Player.Character);
 			switch (rel)
 			{
