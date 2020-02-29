@@ -251,8 +251,7 @@ namespace GFPS
 		{
 			//Ped[] observablePeds = World.GetAllPeds();//Helper.getPedsInRangeFromVantage(missile.Position);
 			Ped[] observablePeds = Helper.getPedsInRangeFromVantage(missile.Position);
-			//Screen.ShowHelpTextThisFrame("ped count " + observablePeds.Count());
-			DrawingHelper.markEntitiesOnScreen(observablePeds, pedMarkerSprite);
+			DrawingHelper.markPedsOnScreen(observablePeds, pedMarkerSprite);
 
 			return true;
 		}

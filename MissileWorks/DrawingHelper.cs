@@ -30,22 +30,21 @@ namespace GFPS
 		/// <param name="spr">Instance of <c>Sprite</c> to mark entityList with</param>
 		/// <param name="distinguishPedRelationship">Change color based on the <c>Ped</c>'s relationship with the player</param>
 		/// <param name="liveOnly">Mark living entities only</param>
-		public static void markEntitiesOnScreen(Entity[] entityList, Sprite spr, 
-			bool distinguishPedRelationship = true, bool liveOnly = true)
+		public static void markPedsOnScreen(Entity[] pedArray, Sprite spr, bool distinguishPedRelationship = true)
 		{
-			foreach (Entity entity in entityList)
+			foreach (Ped p in pedArray)
 			{
-				// if we only want to mark living entities, but the entity is dead, skip it
-				if (liveOnly && entity.IsDead)
+				// if the ped is dead or isn't human, skip
+				if (p.IsDead || !p.IsHuman)
 					continue;
 
 				// if not distinguishing Ped relationship w/ player, or the entity is not a ped, draw with default color
-				if (!distinguishPedRelationship || !(entity is Ped))
-					markEntityOnScreen(entity, spr, defaultColor);
+				if (!distinguishPedRelationship)
+					markEntityOnScreen(p, spr, defaultColor);
 
 				// otherwise, assign colors based on relationship
 				else
-					markEntityOnScreen(entity, spr, getColorFromRelationship((Ped)entity));
+					markEntityOnScreen(p, spr, getColorFromRelationship(p));
 			}
 		}
 
@@ -107,7 +106,7 @@ namespace GFPS
 					customColor = Color.OrangeRed;
 					break;
 
-				case Relationship.Pedestrians:
+				//case Relationship.Pedestrians:
 				case Relationship.Neutral:
 				default:
 					customColor = Color.White;
