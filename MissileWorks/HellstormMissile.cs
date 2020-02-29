@@ -17,7 +17,7 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 400.0f;
+		protected const float initialHeight = 350.0f;
 		protected const float initialRadius = 10.0f;
 
 		// instance references & pointers
@@ -29,8 +29,8 @@ namespace GFPS
 		protected int launchStageTransitionTime = 200;
 
 		// control
-		protected float maxCruiseSpeed = 80.0f;
-		protected float maxBoostSpeed = 160.0f;
+		protected float maxCruiseSpeed = 75.0f;
+		protected float maxBoostSpeed = 150.0f;
 		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);		// use ApplyForceRelative
 		protected Vector3 xAxisControlVector = new Vector3(1f, 0f, 0f) * 10f;
 		protected Vector3 yAxisControlVector = new Vector3(0f, 1f, 0f) * -10f;	// inverted?
@@ -43,7 +43,7 @@ namespace GFPS
 		// camera
 		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
 		protected Vector3 missileCamOffset = new Vector3(0f, 0f, 0f);
-		protected float cameraFov = 85f;
+		protected float cameraFov = 75f;
 
 		// targeting
 		protected TargetingSystem targetingSys;
@@ -201,7 +201,7 @@ namespace GFPS
 		{
 			// get the missile's position and create an explosion at that position
 			Vector3 missilePos = missile.Position;
-			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake);
+			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake, Game.Player.Character);
 		}
 
 
@@ -285,17 +285,24 @@ namespace GFPS
 
 			// if cluster bombs are ready, and user is pressing 
 			if (clusterBombsReady && Game.IsControlPressed(Control.VehicleFlyAttack))
-			{
 				fireClusterBombs(targets);
-			}
 			
 			return true;
 		}
 
 
 
+		/// <summary>
+		/// Fire cluster bombs from main Hellstorm missile.
+		/// </summary>
+		/// <param name="targets"></param>
 		private void fireClusterBombs(List<Entity> targets)
 		{
+			// if no targets in list, do nothing and return
+			if (targets.Count == 0)
+				return;
+
+			// mark cluster bombs as used; create explosions (up to the max limit) on targets
 			clusterBombsReady = false;
 			for (int i = 0; i < maxClusterBombs && i < targets.Count; i++)
 				World.AddExplosion(targets[i].Position, clusterBombExplosionType, 1f, 1f, Game.Player.Character);
