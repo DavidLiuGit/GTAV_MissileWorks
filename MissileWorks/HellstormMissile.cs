@@ -35,6 +35,11 @@ namespace GFPS
 		protected Vector3 xAxisControlVector = new Vector3(1f, 0f, 0f) * 10f;
 		protected Vector3 yAxisControlVector = new Vector3(0f, 1f, 0f) * -10f;	// inverted?
 
+		// cluster bombs
+		protected bool clusterBombsReady;
+		protected ExplosionType clusterBombExplosionType = ExplosionType.Grenade;
+		protected int maxClusterBombs = 5;
+
 		// camera
 		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
 		protected Vector3 missileCamOffset = new Vector3(0f, 0f, 0f);
@@ -73,6 +78,7 @@ namespace GFPS
 			invertThrust = true;
 			timeout = 15000;
 			explosionDamageScale = 2.0f;
+			clusterBombsReady = false;						// initially, do not allow use of cluster bombs
 
 			// load particle FX
 			particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
@@ -145,6 +151,7 @@ namespace GFPS
 						transitionToMissileCam(missileCamera);
 						lifecycleStage = HellstormLifecycle.Cruise;
 						canControl = true;
+						clusterBombsReady = true;
 					}
 					break;
 			}
@@ -268,17 +275,30 @@ namespace GFPS
 			List<Ped> observablePeds = Helper.getPedsInRangeFromVantage(missile.Position).ToList();
 
 			// iterate over the list of observable peds & mark peds as needed
-			List<Ped> targets = new List<Ped>();
-			foreach (Ped p in observablePeds)
+			List<Entity> targets = new List<Entity>();
+			foreach (Entity p in observablePeds)
 			{
-				TargetType tt = targetingSys.getPedTargetType(p);
+				TargetType tt = targetingSys.getPedTargetType((Ped)p);
 				if (tt == TargetType.Hostile) targets.Add(p);		//if ped is hostile, add to target list
 				DrawingHelper.markEntityOnScreen(p, pedMarkerSprite, DrawingHelper.getColorFromTargetType(tt));
 			}
 
-
+			// if cluster bombs are ready, and user is pressing 
+			if (clusterBombsReady && Game.IsControlPressed(Control.VehicleFlyAttack))
+			{
+				fireClusterBombs(targets);
+			}
 			
 			return true;
+		}
+
+
+
+		private void fireClusterBombs(List<Entity> targets)
+		{
+			clusterBombsReady = false;
+			for (int i = 0; i < maxClusterBombs && i < targets.Count; i++)
+				World.AddExplosion(targets[i].Position, clusterBombExplosionType, 1f, 1f, Game.Player.Character);
 		}
 		#endregion
 	}
