@@ -24,33 +24,6 @@ namespace GFPS
 
 		#region drawing
 		/// <summary>
-		/// Draw a texture around specified entityList
-		/// </summary>
-		/// <param name="entityList">List of <c>entity</c> instances to mark</param>
-		/// <param name="spr">Instance of <c>Sprite</c> to mark entityList with</param>
-		/// <param name="distinguishPedRelationship">Change color based on the <c>Ped</c>'s relationship with the player</param>
-		/// <param name="liveOnly">Mark living entities only</param>
-		public static void markPedsOnScreen(Entity[] pedArray, Sprite spr, bool distinguishPedRelationship = true)
-		{
-			foreach (Ped p in pedArray)
-			{
-				// if the ped is dead or isn't human, skip
-				if (p.IsDead || !p.IsHuman)
-					continue;
-
-				// if not distinguishing Ped relationship w/ player, or the entity is not a ped, draw with default color
-				if (!distinguishPedRelationship)
-					markEntityOnScreen(p, spr, defaultColor);
-
-				// otherwise, assign colors based on relationship
-				else
-					markEntityOnScreen(p, spr, getColorFromPed(p));
-			}
-		}
-
-
-
-		/// <summary>
 		/// Draw a preloaded <c>Sprite</c> on the screen where a specified entity is
 		/// </summary>
 		/// <param name="entity">Instance of <c>Entity</c> to mark</param>
@@ -85,36 +58,30 @@ namespace GFPS
 
 
 		/// <summary>
-		/// Determine the <c>Color</c> to mark the <c>Ped</c> with, depending on the <c>Ped</c>'s
-		/// relationship with the player, whether the Ped is in combat
+		/// Determine the <c>Color</c> to mark an entity with, depending on its <c>TargetType</c>
 		/// </summary>
-		/// <param name="p">instance of <c>Ped</c></param>
-		/// <returns></returns>
-		public static Color getColorFromPed(Ped p)
+		/// <param name="tt"><c>TargetType</c></param>
+		/// <returns><c>Color</c></returns>
+		public static Color getColorFromTargetType(TargetType tt)
 		{
-			Color customColor = defaultColor;
-			Relationship rel = p.GetRelationshipWithPed(Game.Player.Character);
-			switch (rel)
+			switch (tt)
 			{
-				case Relationship.Companion:
-				case Relationship.Like:
-				case Relationship.Respect:
-					customColor = Color.Green;
-					break;
+				case TargetType.Player:
+				case TargetType.Friendly:
+					return Color.Green;
 
-				case Relationship.Hate:
-				case Relationship.Dislike:
-					customColor = Color.OrangeRed;
-					break;
+				case TargetType.Hostile:
+					return Color.OrangeRed;
 
-				//case Relationship.Pedestrians:
-				case Relationship.Neutral:
+				case TargetType.Untargetable:
+					return Color.Black;
+
+				case TargetType.Neutral:
+					return Color.FromArgb(120, Color.White);
+
 				default:
-					customColor = Color.White;
-					break;
+					return Color.Transparent;
 			}
-
-			return customColor;
 		}
 		#endregion
 	}

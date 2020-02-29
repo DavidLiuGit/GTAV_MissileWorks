@@ -17,7 +17,7 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 500.0f;
+		protected const float initialHeight = 400.0f;
 		protected const float initialRadius = 10.0f;
 
 		// instance references & pointers
@@ -29,8 +29,8 @@ namespace GFPS
 		protected int launchStageTransitionTime = 200;
 
 		// control
-		protected float maxCruiseSpeed = 100.0f;
-		protected float maxBoostSpeed = 200.0f;
+		protected float maxCruiseSpeed = 80.0f;
+		protected float maxBoostSpeed = 160.0f;
 		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);		// use ApplyForceRelative
 		protected Vector3 xAxisControlVector = new Vector3(1f, 0f, 0f) * 10f;
 		protected Vector3 yAxisControlVector = new Vector3(0f, 1f, 0f) * -10f;	// inverted?
@@ -41,6 +41,7 @@ namespace GFPS
 		protected float cameraFov = 85f;
 
 		// targeting
+		protected TargetingSystem targetingSys;
 		protected string targetingTextureDict = "hud_reticle";
 		protected string targetingAssetname = "reticle_smg";
 		protected Sprite pedMarkerSprite;
@@ -79,7 +80,8 @@ namespace GFPS
 			particleFxOffset = new Vector3(0f, 2.925f, 0f);
 			particleFxName = "scr_agency3b_proj_rpg_trail";
 
-			// load target marking sprite
+			// load targeting resources
+			targetingSys = new TargetingSystem(Game.Player.Character);
 			pedMarkerSprite = new Sprite(targetingTextureDict, targetingAssetname, 
 				DrawingHelper.defaultSizeF, new PointF(0f, 0f), DrawingHelper.defaultColor, 0f, true);
 		}
@@ -262,9 +264,20 @@ namespace GFPS
 		/// <returns></returns>
 		private bool targetObservablePeds()
 		{
-			Ped[] observablePeds = Helper.getPedsInRangeFromVantage(missile.Position);
-			DrawingHelper.markPedsOnScreen(observablePeds, pedMarkerSprite);
+			// find all observable peds from the missile's vantage point
+			List<Ped> observablePeds = Helper.getPedsInRangeFromVantage(missile.Position).ToList();
 
+			// iterate over the list of observable peds & mark peds as needed
+			List<Ped> targets = new List<Ped>();
+			foreach (Ped p in observablePeds)
+			{
+				TargetType tt = targetingSys.getPedTargetType(p);
+				if (tt == TargetType.Hostile) targets.Add(p);		//if ped is hostile, add to target list
+				DrawingHelper.markEntityOnScreen(p, pedMarkerSprite, DrawingHelper.getColorFromTargetType(tt));
+			}
+
+
+			
 			return true;
 		}
 		#endregion
