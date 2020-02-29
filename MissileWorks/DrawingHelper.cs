@@ -29,13 +29,23 @@ namespace GFPS
 		/// <param name="entityList">List of <c>entity</c> instances to mark</param>
 		/// <param name="spr">Instance of <c>Sprite</c> to mark entityList with</param>
 		/// <param name="distinguishPedRelationship">Change color based on the <c>Ped</c>'s relationship with the player</param>
-		public static void markPedsOnScreen(List<Entity> entityList, Sprite spr, bool distinguishPedRelationship = true)
+		/// <param name="liveOnly">Mark living entities only</param>
+		public static void markEntitiesOnScreen(Entity[] entityList, Sprite spr, 
+			bool distinguishPedRelationship = true, bool liveOnly = true)
 		{
 			foreach (Entity entity in entityList)
 			{
-				if (!distinguishPedRelationship)
-					markEntityOnScreen(entity, spr);
+				// if we only want to mark living entities, but the entity is dead, skip it
+				if (liveOnly && entity.IsDead)
+					continue;
 
+				// if not distinguishing Ped relationship w/ player, or the entity is not a ped, draw with default color
+				if (!distinguishPedRelationship || !(entity is Ped))
+					markEntityOnScreen(entity, spr, defaultColor);
+
+				// otherwise, assign colors based on relationship
+				else
+					markEntityOnScreen(entity, spr, getColorFromRelationship((Ped)entity));
 			}
 		}
 
@@ -74,6 +84,38 @@ namespace GFPS
 		}
 
 
+
+		/// <summary>
+		/// Determine the <c>Color</c> to mark the <c>Ped</c> with, depending on the <c>Ped</c>'s relationship with the player
+		/// </summary>
+		/// <param name="p">instance of <c>Ped</c></param>
+		/// <returns></returns>
+		public static Color getColorFromRelationship(Ped p)
+		{
+			Color customColor;
+			Relationship rel = p.GetRelationshipWithPed(Game.Player.Character);
+			switch (rel)
+			{
+				case Relationship.Companion:
+				case Relationship.Like:
+				case Relationship.Respect:
+					customColor = Color.Green;
+					break;
+
+				case Relationship.Hate:
+				case Relationship.Dislike:
+					customColor = Color.OrangeRed;
+					break;
+
+				case Relationship.Pedestrians:
+				case Relationship.Neutral:
+				default:
+					customColor = Color.White;
+					break;
+			}
+
+			return customColor;
+		}
 		#endregion
 	}
 }

@@ -152,7 +152,8 @@ namespace GFPS
 				applyUserInput();
 
 			// mark Peds according to their relationship with the player
-			DrawingHelper.markEntityOnScreen(Game.Player.Character, pedMarkerSprite);
+			targetObservablePeds();
+			//DrawingHelper.markEntityOnScreen(Game.Player.Character, pedMarkerSprite);
 
 			return true;
 		}
@@ -241,6 +242,19 @@ namespace GFPS
 			float leftRightCtrl = Game.GetControlValueNormalized(Control.FlyLeftRight);
 			if (leftRightCtrl != 0.0f)
 				Helper.ApplyForceToCoG(missile, xAxisControlVector * leftRightCtrl, false);
+		}
+
+
+
+
+		private bool targetObservablePeds()
+		{
+			//Ped[] observablePeds = World.GetAllPeds();//Helper.getPedsInRangeFromVantage(missile.Position);
+			Ped[] observablePeds = Helper.getPedsInRangeFromVantage(missile.Position);
+			//Screen.ShowHelpTextThisFrame("ped count " + observablePeds.Count());
+			DrawingHelper.markEntitiesOnScreen(observablePeds, pedMarkerSprite);
+
+			return true;
 		}
 		#endregion
 	}

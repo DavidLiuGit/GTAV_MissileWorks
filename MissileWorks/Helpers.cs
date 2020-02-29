@@ -114,6 +114,30 @@ namespace GFPS
 
 
 
+		/// <summary>
+		/// Get all <c>Ped</c>s on the ground that can be seen, looking directly down from <c>observationPos</c>.
+		/// The radius of the search depends on the height of <c>observationPos</c> and <c>tanRatio</c>
+		/// </summary>
+		/// <param name="observationPos"></param>
+		/// <param name="tanRatio">search radius = tanRatio * observationPos.Z</param>
+		/// <param name="minRadius">Minimum search radius</param>
+		/// <returns></returns>
+		public static Ped[] getPedsInRangeFromVantage(Vector3 observationPos, float tanRatio = 0.333f, float minRadius = 50.0f)
+		{
+			// compute the origin (center-point) of where to search for peds from - this should be on the ground
+			float gndHeight = World.GetGroundHeight(observationPos);
+			Vector3 searchOrigin = new Vector3(observationPos.X, observationPos.Y, gndHeight);
+
+			// compute the radius of the search
+			float radius = tanRatio * Math.Abs(observationPos.Z - gndHeight);
+			radius = radius < minRadius ? minRadius : radius;
+
+			// to be safe, convert the 3D observation position to a 2D position (Vector2)
+			return World.GetNearbyPeds(searchOrigin, radius);
+		}
+
+
+
 		#region NativeAPI
 		/// <summary>
 		/// Apply a force to an entityList at its center of gravity (mass). Resulting acceleration depends on object mass and force applied.
