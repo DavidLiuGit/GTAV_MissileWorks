@@ -40,6 +40,7 @@ namespace GFPS
 		// control
 		protected bool invertThrust = false;	// in case the direction of the missile is flipped 
 		protected Vector3 forwardVector = new Vector3(0f, 1f, 0f);		// unit vector in forward direction of the prop
+		protected Vector3 forwardAngle;
 
 		// explosion
 		protected float explosionDamageScale = 1.0f;
@@ -125,7 +126,7 @@ namespace GFPS
 			// if the missile has collided, shot, or stopped moving, call collisionHandler
 			if (missile.HasCollided || 
 				missile.HasBeenDamagedByAnyWeapon() || 
-				(missile.Speed == 0.0f && missileAge > 0))
+				(missile.Speed == 0.0f && missileAge > 10))
 				if (!collisionHandler())
 					return false;				// stop execution if collisionHandler returns false
 

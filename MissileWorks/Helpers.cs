@@ -85,30 +85,30 @@ namespace GFPS
 		/// </summary>
 		/// <param name="unitDirectionVector">Normalized direction <c>Vector3</c></param>
 		/// <returns><c>Vector3</c> whose x, y, z angles represent pitch, roll, and yaw angles respectively. Angles are in degrees.</returns>
-		public static Vector3 getEulerAngles(Vector3 normDirectionVector, bool invertPitch = false)
+		public static Vector3 getEulerAngles(Vector3 normDirectionVector, Vector3? forwardAngle = null)
 		{
 			// calculate angles
 			float yaw = (float)(Math.Atan2(normDirectionVector.Y, normDirectionVector.X) * 180 / Math.PI) - 90f;
 			float pitch = (float)(Math.Asin(normDirectionVector.Z) * (180 / Math.PI));
 
-			// if any angles need to be inverted, do so
-			if (invertPitch) pitch = invertAngleDegrees(pitch);
+			// build the vector & add the offset angle (forwardAngle), if given
+			Vector3 eulerAngles = new Vector3(pitch, 0f, yaw);		// applied in order: pitch, yaw, roll
+			eulerAngles += forwardAngle ?? Vector3.Zero;
 
-			return new Vector3(pitch, 0f, yaw);
+			// return with each angle normalized
+			eulerAngles.X = normalizeAngle(eulerAngles.X);
+			eulerAngles.Z = normalizeAngle(eulerAngles.Z);
+			return eulerAngles;
 		}
-
+		
 
 		/// <summary>
-		/// Flip an angle 180 degrees. Output is constrained to -180.0 < output <= +180.0
+		/// Normalize an angle in degrees such that it is between 0 and 360 degrees
 		/// </summary>
-		/// <param name="angle"></param>
-		/// <returns></returns>
-		public static float invertAngleDegrees(float angle)
+		/// <param name="angle">input angle in degrees</param>
+		/// <returns>normalized angle, between 0 and 360 degrees</returns>
+		public static float normalizeAngle(float angle)
 		{
-			// invert by adding 180 degrees
-			angle += 180.0f;
-
-			// normalize if needed
 			return (angle % 360f + 360f) % 360f;
 		}
 

@@ -18,7 +18,7 @@ namespace GFPS
 	{
 		#region properties
 		protected const float initialHeight = 400.0f;
-		protected const float initialRadius = 10.0f;
+		protected const float initialRadius = 100.0f;
 
 		// instance references & pointers
 		protected Model clusterMissileModel;
@@ -31,9 +31,10 @@ namespace GFPS
 		// control
 		protected float maxCruiseSpeed = 75.0f;
 		protected float maxBoostSpeed = 150.0f;
+		protected float thrustMagnitude = 20f;		// thrustVector = forwardVector * thrustMagnitude
 		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);		// use ApplyForceRelative
 		protected Vector3 xAxisControlVector = new Vector3(1f, 0f, 0f) * 10f;
-		protected Vector3 yAxisControlVector = new Vector3(0f, 1f, 0f) * -10f;	// inverted?
+		protected Vector3 yAxisControlVector = new Vector3(0f, 0f, 1f) * 10f;
 
 		// cluster bombs
 		protected bool clusterBombsReady;
@@ -41,7 +42,7 @@ namespace GFPS
 		protected int maxClusterBombs = 5;
 
 		// camera
-		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -50f);
+		protected Vector3 launchCameraOffset = new Vector3 (10f, 0f, -40f);
 		protected Vector3 missileCamOffset = new Vector3(0f, 0f, 0f);
 		protected float cameraFov = 75f;
 
@@ -51,6 +52,7 @@ namespace GFPS
 		protected string targetingAssetname = "reticle_smg";
 		protected Sprite pedMarkerSprite;
 		#endregion
+
 
 
 
@@ -88,6 +90,7 @@ namespace GFPS
 
 			// control
 			forwardVector = new Vector3(0f, -1f, 0f);
+			forwardAngle = new Vector3(180f, 0f, 0f);
 
 			// load targeting resources
 			targetingSys = new TargetingSystem(Game.Player.Character);
@@ -127,7 +130,7 @@ namespace GFPS
 
 			// orient the missile towards the player. get normalized delta vector that points towards the player
 			Vector3 directionVector = (Game.Player.Character.Position - missile.Position).Normalized;
-			missile.Rotation = Helper.getEulerAngles(directionVector, invertThrust);
+			missile.Rotation = Helper.getEulerAngles(directionVector, forwardAngle);
 		}
 
 
@@ -160,7 +163,7 @@ namespace GFPS
 			}
 
 			// apply "thrust" to the missile; recall that the missile has a set maximum speed
-			missile.ApplyForceRelative(cruisingThrustVector);
+			missile.ApplyForceRelative(thrustMagnitude * forwardVector);
 			
 			// if user control is enabled, detect relevant user input
 			if (canControl)
@@ -239,8 +242,9 @@ namespace GFPS
 			// transition to missile cam
 			cam.StopPointing();
 			cam.AttachTo(missile, missileCamOffset);
-			cam.Direction = invertThrust ? Vector3.Negate(missile.ForwardVector) : missile.ForwardVector;
-			cam.Rotation = new Vector3(-90f, 0f, 0f);
+			cam.Direction = forwardVector;
+			cam.Rotation = missile.Rotation + forwardAngle;
+			//cam.Rotation = forwardAngle; //new Vector3(-90f, 0f, 0f);
 
 			// fade the screen back in
 			GTA.UI.Screen.FadeIn(launchStageTransitionTime);
@@ -256,12 +260,12 @@ namespace GFPS
 			// read fly up & down input; apply forces accordingly
 			float upDownCtrl = Game.GetControlValueNormalized(Control.FlyUpDown);
 			if (upDownCtrl != 0.0f)
-				Helper.ApplyForceToCoG(missile, yAxisControlVector * upDownCtrl, false);
+				Helper.ApplyForceToCoG(missile, yAxisControlVector * upDownCtrl, true);
 
 			// read fly left & right input; apply forces accordingly
 			float leftRightCtrl = Game.GetControlValueNormalized(Control.FlyLeftRight);
 			if (leftRightCtrl != 0.0f)
-				Helper.ApplyForceToCoG(missile, xAxisControlVector * leftRightCtrl, false);
+				Helper.ApplyForceToCoG(missile, xAxisControlVector * leftRightCtrl, true);
 		}
 
 
@@ -309,6 +313,8 @@ namespace GFPS
 				World.AddExplosion(targets[i].Position, clusterBombExplosionType, 1f, 1f, Game.Player.Character);
 		}
 		#endregion
+
+
 
 
 		#region lifecycle
