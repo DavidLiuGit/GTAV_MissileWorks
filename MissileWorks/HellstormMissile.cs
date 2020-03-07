@@ -17,14 +17,14 @@ namespace GFPS
 	public class HellstormMissile : Missile
 	{
 		#region properties
-		protected const float initialHeight = 350.0f;
+		protected const float initialHeight = 400.0f;
 		protected const float initialRadius = 10.0f;
 
 		// instance references & pointers
 		protected Model clusterMissileModel;
 
 		// lifecycle
-		protected HellstormLifecycle lifecycleStage;
+		private MissileLifecycle lifecycleStage;
 		protected int launchStageTime = 750;
 		protected int launchStageTransitionTime = 200;
 
@@ -86,6 +86,9 @@ namespace GFPS
 			particleFxOffset = new Vector3(0f, 2.925f, 0f);
 			particleFxName = "scr_agency3b_proj_rpg_trail";
 
+			// control
+			forwardVector = new Vector3(0f, -1f, 0f);
+
 			// load targeting resources
 			targetingSys = new TargetingSystem(Game.Player.Character);
 			pedMarkerSprite = new Sprite(targetingTextureDict, targetingAssetname, 
@@ -116,7 +119,7 @@ namespace GFPS
 		protected override void configureMissileProp()
 		{
 			// set lifecycle stage
-			lifecycleStage = HellstormLifecycle.Launch;
+			lifecycleStage = MissileLifecycle.Launch;
 
 			// apply settings to the missile
 			missile.HasGravity = false;
@@ -145,11 +148,11 @@ namespace GFPS
 			// check if it is necessary to transition to the next lifecycle stage
 			switch (lifecycleStage)
 			{
-				case HellstormLifecycle.Launch:
+				case MissileLifecycle.Launch:
 					if (age >= launchStageTime)
 					{
 						transitionToMissileCam(missileCamera);
-						lifecycleStage = HellstormLifecycle.Cruise;
+						lifecycleStage = MissileLifecycle.Cruise;
 						canControl = true;
 						clusterBombsReady = true;
 					}
@@ -165,7 +168,6 @@ namespace GFPS
 
 			// mark Peds according to their relationship with the player
 			targetObservablePeds();
-			//DrawingHelper.markEntityOnScreen(Game.Player.Character, pedMarkerSprite);
 
 			return true;
 		}
@@ -219,7 +221,6 @@ namespace GFPS
 			World.RenderingCamera = missileCamera;
 		}
 		#endregion
-
 
 
 
@@ -308,14 +309,15 @@ namespace GFPS
 				World.AddExplosion(targets[i].Position, clusterBombExplosionType, 1f, 1f, Game.Player.Character);
 		}
 		#endregion
-	}
 
 
-
-	public enum HellstormLifecycle
-	{
-		Launch,
-		Cruise,
-		Boost,
+		#region lifecycle
+		protected new enum MissileLifecycle
+		{
+			Launch,			// missile is created, tracked w/ cinematic camera, and boosted up to speed
+			Cruise,			// missile cam used; player allowed to control; can launch cluster bombs
+			Boost,			// missile increases its thrust and speed
+		}
+		#endregion
 	}
 }

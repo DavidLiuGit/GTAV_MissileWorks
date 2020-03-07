@@ -27,6 +27,7 @@ namespace GFPS
 		protected Camera missileCamera;
 
 		// lifecycle
+		//private MissileLifecycle lifecycleStage;
 		protected int creationTime;
 		protected int timeout;				// if missile age (in milliseconds) > timeout, self-destruct/cleanup
 
@@ -38,6 +39,7 @@ namespace GFPS
 
 		// control
 		protected bool invertThrust = false;	// in case the direction of the missile is flipped 
+		protected Vector3 forwardVector = new Vector3(0f, 1f, 0f);		// unit vector in forward direction of the prop
 
 		// explosion
 		protected float explosionDamageScale = 1.0f;
@@ -176,6 +178,15 @@ namespace GFPS
 
 
 		#region accessorsMutators
+		#endregion
+
+
+
+		#region lifecycle
+		protected enum MissileLifecycle
+		{
+			Cruise,
+		}
 		#endregion
 	}
 }
