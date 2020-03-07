@@ -29,10 +29,7 @@ namespace GFPS
 		protected int launchStageTransitionTime = 200;
 
 		// control
-		protected float maxCruiseSpeed = 75.0f;
 		protected float maxBoostSpeed = 150.0f;
-		protected float thrustMagnitude = 20f;		// thrustVector = forwardVector * thrustMagnitude
-		protected Vector3 cruisingThrustVector = new Vector3(0f, -20f, 0f);		// use ApplyForceRelative
 		protected Vector3 xAxisControlVector = new Vector3(1f, 0f, 0f) * 10f;
 		protected Vector3 yAxisControlVector = new Vector3(0f, 0f, 1f) * 10f;
 
@@ -77,16 +74,15 @@ namespace GFPS
 			clusterMissileModel = (Model)(-1146260322);		// homing missile
 			attachCamera = true;
 			explosionType = ExplosionType.Plane;
-			invertThrust = true;
 			timeout = 15000;
 			explosionDamageScale = 2.0f;
 			clusterBombsReady = false;						// initially, do not allow use of cluster bombs
 
 			// load particle FX
-			particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
-			particleFxAsset.Request();
+			//particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
+			//particleFxAsset.Request();
 			particleFxOffset = new Vector3(0f, 2.925f, 0f);
-			particleFxName = "scr_agency3b_proj_rpg_trail";
+			//particleFxName = "scr_agency3b_proj_rpg_trail";
 
 			// control
 			forwardVector = new Vector3(0f, -1f, 0f);
@@ -176,41 +172,7 @@ namespace GFPS
 		}
 
 
-
-		/// <summary>
-		/// Request and attach particle effects to the missile
-		/// </summary>
-		protected override void attachParticleFx()
-		{
-			ParticleEffect fx = World.CreateParticleEffect(particleFxAsset, particleFxName,
-				missile, particleFxOffset, Vector3.Zero, particleFxScale);
-		}
-
-
-
-		/// <summary>
-		/// The Hellfire main missile collision handler. Missile will explode on collision.
-		/// </summary>
-		protected override bool collisionHandler()
-		{
-			detonate();
-			return cleanUp();
-		}
-
-
-
-		/// <summary>
-		/// Detonate the missile at the missile's current position
-		/// </summary>
-		protected override void detonate()
-		{
-			// get the missile's position and create an explosion at that position
-			Vector3 missilePos = missile.Position;
-			World.AddExplosion(missilePos, explosionType, explosionDamageScale, explosionCamShake, Game.Player.Character);
-		}
-
-
-
+		
 		/// <summary>
 		/// Create the missile cam. Initially, the camera shows the "launch"
 		/// </summary>
@@ -244,7 +206,6 @@ namespace GFPS
 			cam.AttachTo(missile, missileCamOffset);
 			cam.Direction = forwardVector;
 			cam.Rotation = missile.Rotation + forwardAngle;
-			//cam.Rotation = forwardAngle; //new Vector3(-90f, 0f, 0f);
 
 			// fade the screen back in
 			GTA.UI.Screen.FadeIn(launchStageTransitionTime);

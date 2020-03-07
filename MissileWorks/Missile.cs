@@ -17,30 +17,29 @@ namespace GFPS
 		#region properties
 		// config
 		public bool active;
-		protected Model missileModel;
-		protected bool canControl;
+		protected Model missileModel = (Model)737852268;
+		protected bool canControl = false;
 		protected bool attachCamera = false;
-		public bool autonomous;
 
 		// instance references & pointers
 		protected Prop missile;				// Prop is a child of Entity
 		protected Camera missileCamera;
 
 		// lifecycle
-		//private MissileLifecycle lifecycleStage;
 		protected int creationTime;
-		protected int timeout;				// if missile age (in milliseconds) > timeout, self-destruct/cleanup
+		protected int timeout = 10000;		// if missile age (in milliseconds) > timeout, self-destruct/cleanup
 
 		// particle fx
-		protected ParticleEffectAsset particleFxAsset;
-		protected Vector3 particleFxOffset;
+		protected ParticleEffectAsset particleFxAsset = new ParticleEffectAsset("scr_agencyheistb");
+		protected Vector3 particleFxOffset = Vector3.Zero;
 		protected float particleFxScale = 2.0f;
-		protected string particleFxName;
+		protected string particleFxName = "scr_agency3b_proj_rpg_trail";
 
 		// control
-		protected bool invertThrust = false;	// in case the direction of the missile is flipped 
+		protected float maxCruiseSpeed = 75.0f;
+		protected float thrustMagnitude = 20f;			// thrustVector = forwardVector * thrustMagnitude
 		protected Vector3 forwardVector = new Vector3(0f, 1f, 0f);		// unit vector in forward direction of the prop
-		protected Vector3 forwardAngle;
+		protected Vector3 forwardAngle = Vector3.Zero;
 
 		// explosion
 		protected float explosionDamageScale = 1.0f;
@@ -91,17 +90,15 @@ namespace GFPS
 
 		#region virtualMethods
 		/// <summary>
-		/// Apply configurations
+		/// Apply configurations before spawning the missile
 		/// </summary>
 		protected virtual void configure()
 		{
 			active = true;
-			missileModel = (Model)737852268;
-			canControl = false;
-			attachCamera = false;
 			creationTime = Game.GameTime;
-			timeout = 10000;
+			particleFxAsset.Request();
 		}
+
 
 
 		/// <summary>
@@ -132,6 +129,40 @@ namespace GFPS
 
 			return true;
 		}
+
+
+
+		/// <summary>
+		/// Invoked when a collision is detected
+		/// </summary>
+		/// <returns>Whether the control flow can proceed</returns>
+		protected virtual bool collisionHandler()
+		{
+			detonate();
+			return cleanUp();
+		}
+
+
+
+		/// <summary>
+		/// Detonate the missile at the missile's current position
+		/// </summary>
+		protected virtual void detonate()
+		{
+			// get the missile's position and create an explosion at that position; explosion is owned by the player
+			World.AddExplosion(missile.Position, explosionType, explosionDamageScale, explosionCamShake, Game.Player.Character);
+		}
+
+
+
+		/// <summary>
+		/// Attach particle effects to the missile prop
+		/// </summary>
+		protected virtual void attachParticleFx()
+		{
+			ParticleEffect fx = World.CreateParticleEffect(particleFxAsset, particleFxName,
+				missile, particleFxOffset, Vector3.Zero, particleFxScale);
+		}
 		#endregion
 
 
@@ -150,25 +181,7 @@ namespace GFPS
 		protected abstract void configureMissileProp();
 
 
-		/// <summary>
-		/// Attach particle effects to the missile prop
-		/// </summary>
-		protected abstract void attachParticleFx();
-
-
-		/// <summary>
-		/// Invoked when a collision is detected
-		/// </summary>
-		/// <returns>Whether the control flow can proceed</returns>
-		protected abstract bool collisionHandler();
-
-
-		/// <summary>
-		/// Detonate the missile
-		/// </summary>
-		protected abstract void detonate();
-
-
+		
 		/// <summary>
 		/// Create and attach camera to the missile
 		/// </summary>
