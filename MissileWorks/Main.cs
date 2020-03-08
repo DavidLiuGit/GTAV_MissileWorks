@@ -44,6 +44,9 @@ namespace GFPS // !!!! IMPORTANT REPLACE THIS WITH YOUR MODS NAME !!!!
 			{
 				activateMissile(typeof(HellstormMissile));
 			}
+
+			else if (e.KeyCode == Keys.K && e.Modifiers == Keys.Shift)
+				activateMissile(typeof(GuidedMissile));
 		}
 
 
