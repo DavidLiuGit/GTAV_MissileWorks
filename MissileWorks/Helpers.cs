@@ -17,6 +17,7 @@ namespace GFPS
 	{
 		static Random rng = new Random();
 
+		#region positioning
 		/// <summary>
 		/// Generate an offset Vector3. Offset by specified height, and at a random point in a circle, defined by <c>haloRadius</c>
 		/// </summary>
@@ -60,9 +61,12 @@ namespace GFPS
 		{
 			return targetPos + getOffsetVector3(0.0f, radius);
 		}
+		#endregion
 
 
 
+
+		#region relationships
 		public static void makeRelationshipGroupHate(RelationshipGroup rg, uint[] hateGroupHashes)
 		{
 			foreach (uint group in hateGroupHashes)
@@ -76,9 +80,12 @@ namespace GFPS
 			0x7EA26372,		// prisoners
 			0x8296713E,		// dealers
 		};
+		#endregion
 
 
 
+
+		#region trigonometry
 		/// <summary>
 		/// Given a normalized direction Vector3, return a set of Euler angles, describing Rot[ZXY] (i.e. pitch, roll, yaw).
 		/// All angles are in degrees. Roll will be set to 0.0
@@ -111,6 +118,19 @@ namespace GFPS
 		{
 			return (angle % 360f + 360f) % 360f;
 		}
+
+
+
+		public static float angleDelta2D(float a, float b)
+		{
+			float d = Math.Abs(a - b) % 360f;
+			float r = d > 180 ? 360 - d : d;
+
+			// calculate sign 
+			int sign = (a - b >= 0 && a - b <= 180) || (a - b <= -180 && a - b >= -360) ? 1 : -1;
+			return r * sign;
+		}
+		#endregion
 
 
 
