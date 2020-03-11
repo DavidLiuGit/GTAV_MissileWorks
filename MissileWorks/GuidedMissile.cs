@@ -32,6 +32,7 @@ namespace GFPS
 		protected float maxDragForceMultiplier = -0.5f;		// value should be negative, since drag acts opposite the fwd vector
 		protected float maxDragOffset = 0.001f;
 		protected float maxDampingOffset = 0.001f;
+		protected float maxYawAngularVel = 0.707107f;
 		#endregion
 
 
@@ -141,15 +142,13 @@ namespace GFPS
 			Vector3 rotVelocity = missile.RotationVelocity;
 			//printDebug(position, rotation, velocity, rotVelocity);
 
-			// apply aerodynamic forces
-			applyAerodynamicForces(position, rotation, velocity, rotVelocity);
-			//missile.ApplyForceRelative(-0.5f * forwardVector, new Vector3(0.0005f, 0f, 0f));
-
-
+			// apply aerodynamic drag forces
+			applyAerodynamicDragForces(position, rotation, velocity, rotVelocity);
 
 			return true;
 		}
 		#endregion
+
 
 
 
@@ -161,13 +160,16 @@ namespace GFPS
 		/// <param name="rotation"></param>
 		/// <param name="velocity"></param>
 		/// <param name="rotVelocity"></param>
-		protected void applyAerodynamicForces(Vector3 position, Vector3 rotation, Vector3 velocity, Vector3 rotVelocity)
+		protected void applyAerodynamicDragForces(Vector3 position, Vector3 rotation, Vector3 velocity, Vector3 rotVelocity)
 		{
 			// compute aerodynamic properties & ratios
 			float airSpeed = velocity.Length();		// ||velocity||, assuming no wind; always positive or 0
 			float densityMultipler = computeApproxAirDensityMultiplier(position.Z);
 			float airSpeedDragMultiplier = computeAirSpeedDragMultiplier(airSpeed);
 			float dragForceMultiplier = maxDragForceMultiplier * densityMultipler * airSpeedDragMultiplier;
+
+			// if dragForceMultiplier is 0, stop execution flow, since no forces can be applied
+			if (dragForceMultiplier == 0f) return;
 
 			// compute the shortest-path-to-target vector, and its Euler angles
 			Vector3 targetVector = _targetEntity.Position - position;
@@ -177,7 +179,7 @@ namespace GFPS
 			applySteeringForce(targetAngles, velocity, rotation, rotVelocity, dragForceMultiplier);
 
 			// apply forces 
-			//applyStabilizingForces(velocity, rotation, rotVelocity, dragForceMultiplier);
+			applyStabilizingForces(velocity, rotation, rotVelocity, dragForceMultiplier);
 		}
 
 
@@ -223,35 +225,46 @@ namespace GFPS
 		/// <param name="dragMultiplier"></param>
 		protected void applyStabilizingForces(Vector3 velocity, Vector3 rotation, Vector3 rotVelocity, float dragMultiplier)
 		{
-			// the magnitude of the rotational dampening force depends on 
-
-			//missile
+			//applyStaticStabilizingForce(velocity, rotation, dragMultiplier);
+			applyDynamicStabilizingForce(rotVelocity, dragMultiplier);
 		}
 
 
 
 		/// <summary>
-		/// Compute air density (approximate) multiplier, assuming 0 temperature lapse rate. That is, 
-		/// assuming temperature does not change with altitude. The approximation is based on barometric density eqn.
-		/// See: https://en.wikipedia.org/wiki/Barometric_formula#Density_equations
+		/// Apply a force that resists rotation deviation from the missile's direction of travel.
 		/// </summary>
-		/// <param name="altitude">Altitude, in meters (GTA standard unit)</param>
-		/// <returns>M</returns>
-		protected float computeApproxAirDensityMultiplier(float altitude)
+		/// <param name="velocity"></param>
+		/// <param name="rotation"></param>
+		/// <param name="dragMultiplier"></param>
+		protected void applyStaticStabilizingForce(Vector3 velocity, Vector3 rotation, float dragMultiplier)
 		{
-			return (float)Math.Exp((gravitationalAccel * airMolarMass * altitude) / (universalGasConst * standardTemperature));
+			// compute how far off-axis the missile's rotation is from its velocity vector
+			Vector3 velocityEulerAngle = Helper.getEulerAngles(velocity.Normalized, forwardAngle);
+			float yawDiff = Helper.angleDelta2D(rotation.Z, velocityEulerAngle.Z);
+			float stabilizingForceMultiplier = 1 - (float)Math.Cos(yawDiff * Math.PI / 180.0);		// positive; 0 < F_s < 1
+
+			// apply the static stabilizing force
+			Vector3 forceVector = dragMultiplier * stabilizingForceMultiplier * forwardVector;
+			Vector3 offsetVector = new Vector3(yawDiff < 0 ? -maxDampingOffset : maxDampingOffset, 0f, 0f);
+			missile.ApplyForceRelative(forceVector, offsetVector);
 		}
 
 
 
 		/// <summary>
-		/// Compute drag multiplier due to air speed. Drag is proportional to airSpeed squared
+		/// 
 		/// </summary>
-		/// <param name="airSpeed">Air speed, computed as </param>
-		/// <returns></returns>
-		protected float computeAirSpeedDragMultiplier(float airSpeed)
+		/// <param name="rotVelocity">Angular velocity about each axis, </param>
+		/// <param name="dragMultiplier"></param>
+		protected void applyDynamicStabilizingForce(Vector3 rotVelocity, float dragMultiplier)
 		{
-			return (float)(1 - (Math.Pow(maxCruiseSpeed - airSpeed, 2f) / (maxCruiseSpeed * maxCruiseSpeed)));
+			float yawAngVel = rotVelocity.Z;
+			Vector3 forceVector = dragMultiplier / 2 * forwardVector * yawAngVel * yawAngVel;
+
+			Vector3 offsetVector = new Vector3(yawAngVel < 0 ? -maxDampingOffset : maxDampingOffset, 0f, 0f);
+
+			missile.ApplyForceRelative(forceVector, offsetVector);
 		}
 
 
@@ -274,6 +287,35 @@ namespace GFPS
 				+ "~n~RotSpeed: " + rotVelocity.Round(4).ToString();
 
 			GTA.UI.Screen.ShowHelpTextThisFrame(debugStr);
+		}
+		#endregion
+
+
+
+
+		#region helpers
+		/// <summary>
+		/// Compute air density (approximate) multiplier, assuming 0 temperature lapse rate. That is, 
+		/// assuming temperature does not change with altitude. The approximation is based on barometric density eqn.
+		/// See: https://en.wikipedia.org/wiki/Barometric_formula#Density_equations
+		/// </summary>
+		/// <param name="altitude">Altitude, in meters (GTA standard unit)</param>
+		/// <returns>M</returns>
+		protected float computeApproxAirDensityMultiplier(float altitude)
+		{
+			return (float)Math.Exp((gravitationalAccel * airMolarMass * altitude) / (universalGasConst * standardTemperature));
+		}
+
+
+
+		/// <summary>
+		/// Compute drag multiplier due to air speed. Drag is proportional to airSpeed squared
+		/// </summary>
+		/// <param name="airSpeed">Air speed, computed as </param>
+		/// <returns></returns>
+		protected float computeAirSpeedDragMultiplier(float airSpeed)
+		{
+			return (float)(1 - (Math.Pow(maxCruiseSpeed - airSpeed, 2f) / (maxCruiseSpeed * maxCruiseSpeed)));
 		}
 		#endregion
 	}

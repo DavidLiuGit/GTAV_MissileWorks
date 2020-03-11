@@ -48,7 +48,7 @@ namespace GFPS
 		#endregion
 
 
-		protected Sprite posMarker;
+
 
 		#region constructorDestructor
 		/// <summary>
@@ -122,8 +122,8 @@ namespace GFPS
 
 			// if the missile has collided, shot, or stopped moving, call collisionHandler
 			if (missile.HasCollided || 
-				missile.HasBeenDamagedByAnyWeapon() || 
-				(missile.Speed == 0.0f && missileAge > 50))
+				missile.HasBeenDamagedByAnyWeapon() /* || 
+				(missile.Speed == 0.0f && missileAge > 50) */ )
 				if (!collisionHandler())
 					return false;				// stop execution if collisionHandler returns false
 
@@ -193,6 +193,7 @@ namespace GFPS
 
 		#region accessorsMutators
 		#endregion
+
 
 
 
